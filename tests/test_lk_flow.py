@@ -22,7 +22,7 @@ def response():
     # return requests.get("https://github.com/audreyr/cookiecutter-pypackage")
 
 
-class TestLk_flow:
+class TestLkFlow:
     @classmethod
     def setup_class(cls):
         pass
@@ -41,9 +41,9 @@ class TestLk_flow:
         assert lk_flow.__version__
         from lk_flow import __main__
 
-        # asset cost time
-        benchmark(__main__.version())
-        assert benchmark.state.state.max < 0.01
+        # assert cost time
+        benchmark(__main__.version)
+        assert benchmark.stats.stats.max < 0.01
 
     def test_config(self):
         import os

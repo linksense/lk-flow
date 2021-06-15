@@ -19,11 +19,11 @@ def ipython() -> None:  # pragma: no cover
     embed()
 
 
-def version() -> None:
+def version() -> str:
     """显示当前版本"""
     import lk_flow
 
-    print(lk_flow.__version__)
+    return lk_flow.__version__
 
 
 if __name__ == "__main__":
