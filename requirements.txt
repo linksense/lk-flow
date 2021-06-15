@@ -1,0 +1,10 @@
+ipython
+fire
+PyYAML
+redis
+flask_mongoengine
+sentry_sdk
+pymysql
+sqlalchemy
+flask_sqlalchemy
+flask
