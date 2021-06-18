@@ -11,7 +11,7 @@ class Config:
     """
 
     LOG_FORMAT = (
-        "[%(asctime)s] [%(uuid)s] [%(threadName)s:%(thread)d] [%(levelname)s]: "
+        "[%(asctime)s] [%(threadName)s:%(thread)d] [%(levelname)s]: "
         "%(message)s [%(pathname)s <%(lineno)d>]"
     )
     LOG_LEVEL = "DEBUG"

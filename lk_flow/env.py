@@ -16,6 +16,7 @@ if conf.sentry_dns:  # pragma: no cover
 
 def init_log(log: logging.Logger) -> logging.Logger:
     log.setLevel(conf.LOG_LEVEL)
+    logging.basicConfig(format=conf.LOG_FORMAT)
     return log
 
 

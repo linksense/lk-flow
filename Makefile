@@ -52,6 +52,7 @@ clean-test: ## remove test and coverage artifacts
 format: ## format python code
 	black lk_flow tests
 	isort lk_flow tests --profile black
+	flake8 lk_flow tests
 
 lint: ## check style with flake8
 	flake8 lk_flow tests
