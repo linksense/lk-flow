@@ -8,7 +8,7 @@ import aioschedule
 
 
 async def init_time_trigger() -> None:
-    aioschedule.every().day.at("20:00").do(print)
+    aioschedule.every().day.at("20:00").do(print, "a print")
 
 
 async def start_server() -> None:

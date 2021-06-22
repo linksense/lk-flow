@@ -27,5 +27,7 @@ del init_log
 app = Flask(__name__)
 app.config.from_object(conf)
 sql_db = SQLAlchemy(app)
+
+OrmBaseModel = sql_db.declarative_base()
 mongo_db = MongoEngine(app)
 redis_db = redis.Redis.from_url(conf.redis_url)

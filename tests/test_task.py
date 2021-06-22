@@ -8,7 +8,8 @@ import sys
 import pytest
 
 from lk_flow.errors import RunError
-from lk_flow.models.tasks import Subprocess, Task
+from lk_flow.models.subprocess import Subprocess
+from lk_flow.models.tasks import Task
 from tests.test_lk_flow import TestLkFlow
 
 
@@ -16,17 +17,21 @@ class TestTask(TestLkFlow):
     @pytest.mark.asyncio
     async def test_init(self):
         with pytest.raises(RunError):
-            await Subprocess(Task(command=None)).start()
-        with pytest.raises(RunError):
-            await Subprocess(Task(command=f"error_command http.server")).start()
+            await Subprocess(Task(name="no command", command=None)).start()
         with pytest.raises(RunError):
             await Subprocess(
-                Task(command=f"/bin/usr/error_command http.server")
+                Task(name="error_command", command=f"error_command http.server")
+            ).start()
+        with pytest.raises(RunError):
+            await Subprocess(
+                Task(
+                    name="error_command", command=f"/bin/usr/error_command http.server"
+                )
             ).start()
 
     @pytest.mark.asyncio
     async def test_run(self):
-        t = Task(command=f"{sys.executable} -m http.server")
+        t = Task(name="task", command=f"{sys.executable} -m http.server")
 
         p_manger = Subprocess(t)
         assert p_manger.is_running() is False
@@ -50,20 +55,30 @@ class TestTask(TestLkFlow):
 
     @pytest.mark.asyncio
     async def test_run_with_normal_exit(self):
-        await Subprocess(Task(command=f"{sys.executable} --version")).start()
+        await Subprocess(
+            Task(name="py version", command=f"{sys.executable} --version")
+        ).start()
         await asyncio.sleep(2)  # wait for start
 
     @pytest.mark.asyncio
     async def test_run_error(self):
         p_manger = Subprocess(
-            Task(command=f"{sys.executable} -m http.server 22", directory=".")
+            Task(
+                name="error port",
+                command=f"{sys.executable} -m http.server 22",
+                directory=".",
+            )
         )
         await p_manger.start()
         await asyncio.sleep(1)  # wait for start
         assert p_manger.pid is None
 
         p_manger = Subprocess(
-            Task(command=f"{sys.executable} -m http.server", directory="./not_exsit")
+            Task(
+                name="error dir",
+                command=f"{sys.executable} -m http.server",
+                directory="./not_exit",
+            )
         )
         with pytest.raises(RunError):
             await p_manger.start()

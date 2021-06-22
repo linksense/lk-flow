@@ -12,3 +12,4 @@ sentry_sdk
 flask
 flask_mongoengine
 flask_sqlalchemy
+sqlalchemy
