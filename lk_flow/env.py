@@ -16,7 +16,8 @@ if conf.sentry_dns:  # pragma: no cover
 
 def init_log(log: logging.Logger) -> logging.Logger:
     log.setLevel(conf.LOG_LEVEL)
-    logging.basicConfig(format=conf.LOG_FORMAT)
+    if conf.LOG_FORMAT:
+        logging.basicConfig(format=conf.LOG_FORMAT)
     return log
 
 
@@ -28,6 +29,6 @@ app = Flask(__name__)
 app.config.from_object(conf)
 sql_db = SQLAlchemy(app)
 
-OrmBaseModel = sql_db.declarative_base()
+OrmBaseModel = sql_db.Model
 mongo_db = MongoEngine(app)
 redis_db = redis.Redis.from_url(conf.redis_url)

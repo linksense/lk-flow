@@ -17,6 +17,9 @@ class Task(BaseModel):
     auto_restart: bool = False
     restart_retries: int = 0
     environment: str = None
+    cron_expression: str = None  # None 表示不定时
+
+    trigger_events: str = None
 
     class Config:
         orm_mode = True
@@ -34,3 +37,4 @@ class TaskOrm(OrmBaseModel):
     auto_restart = Column(Boolean, default=False, nullable=False)
     restart_retries = Column(Integer, default=0, nullable=False)
     environment = Column(String())
+    cron_expression = Column(String())  # None 表示不定时

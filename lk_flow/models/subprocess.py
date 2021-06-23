@@ -13,11 +13,13 @@ from lk_flow.errors import ProcessRuntimeError, RunError
 from lk_flow.models.tasks import Task
 
 
-class Subprocess:
+class SubProcess:
     def __init__(self, config: Task):
         self.config: Task = config
         self.pid: Optional[int] = None  # Subprocess pid; None when not running
         self.state: Optional[str] = None  # process state
+        self.name: str = config.name
+        self.exit_code: Optional[int] = None
 
         self.process: Optional[asyncio.subprocess.Process] = None
         self.last_start_datetime: Optional[datetime.datetime] = None
@@ -35,12 +37,13 @@ class Subprocess:
                 raise RunError(f"couldn't chdir to {cwd}: {why}")
         # env
         env = self._make_env()
-
         # command
         if self.config.command is None:
             raise RunError("No command for {}".format(self.config))
         filename, *argv = self.config.command.split()
         self._check_filename_exist(filename)
+        # exit_code
+        self.exit_code = None
         return filename, argv, env
 
     def _make_env(self) -> dict:
@@ -90,7 +93,7 @@ class Subprocess:
     async def start(self) -> None:
         filename, argv, env = self._prepare_start()
 
-        if self.process is None:
+        if self.process is not None:
             del self.process
             self.process = None
 
@@ -130,6 +133,7 @@ class Subprocess:
             task_err.cancel()
             if exit_code != 0:
                 raise ProcessRuntimeError(f"{self.config} exit with code {exit_code}")
+        self.exit_code = exit_code
         return exit_code
 
     async def stop(self) -> None:

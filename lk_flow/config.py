@@ -23,7 +23,9 @@ class Config:
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_ENGINE_OPTIONS = {"pool_recycle": 1800}
 
-    SQLALCHEMY_DATABASE_URI = "sqlite:///lk_flow.db"
+    SQLALCHEMY_DATABASE_URI = "sqlite:///{}".format(
+        os.path.join(os.path.abspath("."), "lk_flow.db")
+    )
     MONGODB_SETTINGS = {
         "DB": "lk_flow",
         "host": "mongodb://<user>:<password>@127.0.0.1:27017/lk_flow",
@@ -31,6 +33,8 @@ class Config:
 
     sentry_dns = None
     redis_url = "redis://127.0.0.1:6379"
+    # 配置文件
+    sleep_time = 5
 
     def __init__(self):
         """

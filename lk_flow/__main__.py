@@ -31,9 +31,17 @@ def run() -> None:  # pragma: no cover
     """启动守护进程"""
     import asyncio
 
-    from lk_flow.core.flow import start_server
+    from lk_flow.main import start_server
 
     asyncio.get_event_loop().run_until_complete(start_server())
+
+
+def init() -> None:
+    """初始化数据库"""
+    from lk_flow.env import sql_db
+    from lk_flow.models.tasks import TaskOrm
+    print(TaskOrm)
+    sql_db.create_all()
 
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ import sys
 import pytest
 
 from lk_flow.errors import RunError
-from lk_flow.models.subprocess import Subprocess
+from lk_flow.models.subprocess import SubProcess
 from lk_flow.models.tasks import Task
 from tests.test_lk_flow import TestLkFlow
 
@@ -17,13 +17,13 @@ class TestTask(TestLkFlow):
     @pytest.mark.asyncio
     async def test_init(self):
         with pytest.raises(RunError):
-            await Subprocess(Task(name="no command", command=None)).start()
+            await SubProcess(Task(name="no command", command=None)).start()
         with pytest.raises(RunError):
-            await Subprocess(
+            await SubProcess(
                 Task(name="error_command", command=f"error_command http.server")
             ).start()
         with pytest.raises(RunError):
-            await Subprocess(
+            await SubProcess(
                 Task(
                     name="error_command", command=f"/bin/usr/error_command http.server"
                 )
@@ -33,7 +33,7 @@ class TestTask(TestLkFlow):
     async def test_run(self):
         t = Task(name="task", command=f"{sys.executable} -m http.server")
 
-        p_manger = Subprocess(t)
+        p_manger = SubProcess(t)
         assert p_manger.is_running() is False
         await p_manger.start()
         assert p_manger.pid is not None
@@ -55,14 +55,14 @@ class TestTask(TestLkFlow):
 
     @pytest.mark.asyncio
     async def test_run_with_normal_exit(self):
-        await Subprocess(
+        await SubProcess(
             Task(name="py version", command=f"{sys.executable} --version")
         ).start()
         await asyncio.sleep(2)  # wait for start
 
     @pytest.mark.asyncio
     async def test_run_error(self):
-        p_manger = Subprocess(
+        p_manger = SubProcess(
             Task(
                 name="error port",
                 command=f"{sys.executable} -m http.server 22",
@@ -73,7 +73,7 @@ class TestTask(TestLkFlow):
         await asyncio.sleep(1)  # wait for start
         assert p_manger.pid is None
 
-        p_manger = Subprocess(
+        p_manger = SubProcess(
             Task(
                 name="error dir",
                 command=f"{sys.executable} -m http.server",
