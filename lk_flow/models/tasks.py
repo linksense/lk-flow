@@ -5,9 +5,6 @@
 from typing import Any
 
 from pydantic import BaseModel
-from sqlalchemy import Boolean, Column, Integer, String
-
-from lk_flow.env import OrmBaseModel
 
 
 class Task(BaseModel):
@@ -26,15 +23,3 @@ class Task(BaseModel):
 
     def __init__(self, **data: Any):
         super().__init__(**data)
-
-
-class TaskOrm(OrmBaseModel):
-    __tablename__ = "task"
-    task_id = Column(Integer, primary_key=True, nullable=False)
-    name = Column(String(), index=True, nullable=False, unique=True)
-    command = Column(String())
-    directory = Column(String())
-    auto_restart = Column(Boolean, default=False, nullable=False)
-    restart_retries = Column(Integer, default=0, nullable=False)
-    environment = Column(String())
-    cron_expression = Column(String())  # None 表示不定时

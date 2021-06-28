@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 # encoding: utf-8
 import os
+from collections import defaultdict
+from typing import Any, Dict
 
 import yaml
 
@@ -26,15 +28,13 @@ class Config:
     SQLALCHEMY_DATABASE_URI = "sqlite:///{}".format(
         os.path.join(os.path.abspath("."), "lk_flow.db")
     )
-    MONGODB_SETTINGS = {
-        "DB": "lk_flow",
-        "host": "mongodb://<user>:<password>@127.0.0.1:27017/lk_flow",
-    }
 
     sentry_dns = None
-    redis_url = "redis://127.0.0.1:6379"
     # 配置文件
     sleep_time = 5
+    # mod config
+    mod_dir: str = None
+    mod_config: Dict[str, Dict[str, Any]] = defaultdict(dict)
 
     def __init__(self):
         """
@@ -50,9 +50,13 @@ class Config:
         if os.path.exists(config_path):
             with open(config_path, "r", encoding="utf8") as f:
                 entries = yaml.safe_load(f)
-            self.__dict__.update(entries or {})
             print("read {} values:".format(config_path))
-            print(self.__dict__)
+            mod_config = (entries or {}).pop("mod_config", defaultdict(dict))
+            self.__dict__.update(entries or {})
+            print("config:", self.__dict__, "\nmod_config:")
+            for _mod_name, _mod_config in mod_config.items():
+                self.mod_config[_mod_name] = _mod_config
+                print(f"  [{_mod_name}]:{_mod_config}")
 
 
 conf = Config()

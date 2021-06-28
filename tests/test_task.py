@@ -10,10 +10,9 @@ import pytest
 from lk_flow.errors import RunError
 from lk_flow.models.subprocess import SubProcess
 from lk_flow.models.tasks import Task
-from tests.test_lk_flow import TestLkFlow
 
 
-class TestTask(TestLkFlow):
+class TestTask:
     @pytest.mark.asyncio
     async def test_init(self):
         with pytest.raises(RunError):

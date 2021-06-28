@@ -2,11 +2,8 @@
 # encoding: utf-8
 import logging
 
-import redis
 import sentry_sdk
 from flask import Flask
-from flask_mongoengine import MongoEngine
-from flask_sqlalchemy import SQLAlchemy
 
 from lk_flow.config import conf
 
@@ -27,8 +24,3 @@ del init_log
 
 app = Flask(__name__)
 app.config.from_object(conf)
-sql_db = SQLAlchemy(app)
-
-OrmBaseModel = sql_db.Model
-mongo_db = MongoEngine(app)
-redis_db = redis.Redis.from_url(conf.redis_url)

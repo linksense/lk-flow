@@ -3,12 +3,20 @@
 # Created by zza on 2021/6/24 14:40
 # Copyright 2021 LinkSense Technology CO,. Ltd
 import gc
+import os.path
+from typing import Any, Dict
 
 import pytest
 
 from lk_flow.config import conf
 from lk_flow.core import Context
-from lk_flow.core.mod import ModAbstraction, setup_mod, teardown_mod
+from lk_flow.core.mod import (
+    ModAbstraction,
+    loading_plugin,
+    mod_init,
+    setup_mod,
+    teardown_mod,
+)
 
 
 class TestMod:
@@ -18,10 +26,15 @@ class TestMod:
     @classmethod
     def setup_class(cls):
         cls.context = Context(config=conf)
+        cls.context.config.mod_config["ModC"] = {"enable": False}
 
         class ModA(ModAbstraction):
             @classmethod
-            def setup_mod(cls):
+            def init_mod(cls, mod_config: Dict[str, Any]) -> None:
+                print("init_mod", cls.__name__)
+
+            @classmethod
+            def setup_mod(cls, mod_config: Dict[str, Any]):
                 print("setup_mod", cls.__name__)
 
             @classmethod
@@ -30,7 +43,7 @@ class TestMod:
 
         class ModB(ModAbstraction):
             @classmethod
-            def setup_mod(cls):
+            def setup_mod(cls, mod_config: Dict[str, Any]):
                 print("setup_mod", cls.__name__)
 
             @classmethod
@@ -72,3 +85,14 @@ class TestMod:
 
         out, err = capsys.readouterr()
         assert "setup_mod ModB" in out
+
+    def test_init(self, capsys):
+        mod_init(self.context)
+        out, err = capsys.readouterr()
+        assert "init_mod ModA" in out
+
+    def test_loading_plugin(self):
+        from lk_flow.plugin import trigger
+
+        mod_dir = os.path.dirname(trigger.__file__)
+        loading_plugin(mod_dir)

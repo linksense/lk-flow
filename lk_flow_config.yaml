@@ -5,6 +5,10 @@
 ## sentry服务
 #sentry_dns: null
 
+mod_config:
+  TimeTrigger:
+    enable: true
+    SQLALCHEMY_DATABASE_URI: sqlite:///lk_flow.db
 
 ### 服务配置
 

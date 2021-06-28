@@ -35,10 +35,15 @@ class Context:
     def get_instance(cls) -> Context:
         """
         返回已经创建的 Context 对象
+
+        >>> Context.get_instance()
+        Traceback (most recent call last):
+            ...
+        RuntimeError: Context has not been created. Please Use `Context.get_instance()` after lk_flow init
         """
         if cls._env is None:
             raise RuntimeError(
-                "Context has not been created. Please Use `Context.get_instance()` after RQAlpha init"
+                "Context has not been created. Please Use `Context.get_instance()` after lk_flow init"
             )
         return cls._env
 

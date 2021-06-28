@@ -11,26 +11,31 @@ import functools
 import inspect
 import logging
 import time
+from typing import Any, Callable
 
 from lk_flow.env import logger
 
 
-def time_consuming_log(log_level: logging.INFO):
-    """ 耗时日志装饰器 """
+def time_consuming_log(log_level: logging.INFO) -> Callable:
+    """耗时日志装饰器"""
 
-    def middle_wrapper(func):
+    def middle_wrapper(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Any:
             bound_values = inspect.signature(func).bind(*args, **kwargs)
 
-            start_log = "[Func {}]: {}(**{})".format(func.__name__, func.__name__, dict(bound_values.arguments))
+            start_log = "[Func {}]: {}(**{})".format(
+                func.__name__, func.__name__, dict(bound_values.arguments)
+            )
             logger.log(log_level, start_log)
             start_time = time.time()
 
             ret = func(*args, **kwargs)
 
             used_time = round(time.time() - start_time, 6)
-            end_log = "[Func {}](finish in {}s) return: {}".format(func.__name__, used_time, ret)
+            end_log = "[Func {}](finish in {}s) return: {}".format(
+                func.__name__, used_time, ret
+            )
             logger.log(log_level, end_log)
             return ret
 

@@ -7,9 +7,14 @@ test_lk_flow
 
 Tests for `lk_flow` module.
 """
+
+from typing import Any, Dict
+
 import pytest
 
 import lk_flow
+from lk_flow.__main__ import run
+from lk_flow.core import EVENT, Context, Event, ModAbstraction
 
 
 @pytest.fixture
@@ -49,10 +54,7 @@ class TestLkFlow:
         import os
 
         from lk_flow.config import Config, conf
-        from lk_flow.env import app
 
-        # read flask config
-        assert app.config["SQLALCHEMY_DATABASE_URI"] == conf.SQLALCHEMY_DATABASE_URI
         # read config.yaml
         file_name = "config.yaml"
         created_config = False
@@ -62,3 +64,48 @@ class TestLkFlow:
         assert Config().LOG_LEVEL == conf.LOG_LEVEL
         if created_config:
             os.remove(file_name)
+
+    def test_run(self):
+        assassins_listened = []
+
+        class Assassins(ModAbstraction):
+            @classmethod
+            def setup_mod(cls, mod_config: Dict[str, Any]) -> None:
+                context = Context.get_instance()
+                context.event_bus.add_listener(EVENT.HEARTBEAT, cls.assassins_on_call)
+
+            @classmethod
+            def teardown_mod(cls) -> None:
+                pass
+
+            @classmethod
+            def assassins_on_call(cls, event: Event):
+                context = Context.get_instance()
+                assassins_listened.append(event)
+                if len(assassins_listened) > 2:
+                    context.event_bus.publish_event(Event(EVENT.SYSTEM_CLOSE))
+                    return True
+
+        run()
+        assert len(assassins_listened) > 2
+
+    def test_catch_error(self):
+        class Terrorists(ModAbstraction):
+            @classmethod
+            def setup_mod(cls, mod_config: Dict[str, Any]) -> None:
+                context = Context.get_instance()
+                context.event_bus.add_listener(EVENT.HEARTBEAT, cls.run)
+
+            @classmethod
+            def teardown_mod(cls) -> None:
+                pass
+
+            @classmethod
+            def run(cls, event):
+                raise RuntimeError("Explosions are art")
+
+        run()
+        del Terrorists
+        import gc
+
+        gc.collect()

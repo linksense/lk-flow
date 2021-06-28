@@ -3,6 +3,8 @@
 """ lk_flow 's entry_points"""
 import fire
 
+from lk_flow.core import loading_plugin
+
 
 def entry_point() -> None:  # pragma: no cover
     """
@@ -37,11 +39,14 @@ def run() -> None:  # pragma: no cover
 
 
 def init() -> None:
-    """初始化数据库"""
-    from lk_flow.env import sql_db
-    from lk_flow.models.tasks import TaskOrm
-    print(TaskOrm)
-    sql_db.create_all()
+    """初始化系统"""
+    from lk_flow.config import conf
+    from lk_flow.core import Context, loading_sys_plugin, mod_init
+
+    context = Context(config=conf)
+    loading_sys_plugin()
+    loading_plugin(context.config.mod_dir)
+    mod_init(context)
 
 
 if __name__ == "__main__":

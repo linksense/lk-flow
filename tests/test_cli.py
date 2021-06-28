@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+import os
 
 from fire import testutils
 
@@ -16,3 +17,10 @@ class CoreTest(testutils.BaseTestCase):
             __main__.fire.Fire(
                 {"version": __main__.version}, command=["version", "--help"]
             )
+
+    def test_init(self):
+        with self.assertRaisesFireExit(0, regexp="初始化系统"):
+            __main__.fire.Fire({"init": __main__.init}, command=["init", "--help"])
+        __main__.init()
+
+        assert os.path.exists("lk_flow.db")

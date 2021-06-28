@@ -5,7 +5,7 @@
 import logging
 from collections import defaultdict
 from enum import Enum
-from typing import Callable, Dict, List
+from typing import Any, Callable, Dict, List
 
 from lk_flow.env import logger
 from lk_flow.utils import time_consuming_log
@@ -31,13 +31,20 @@ class EVENT(Enum):
 
 
 class Event(object):
-    def __init__(self, event_type: EVENT, **kwargs):
-        self.__dict__ = kwargs
+    def __init__(self, event_type: EVENT, **kwargs: Any):
+        self.__dict__: Dict[str:Any] = kwargs
         self.event_type = event_type
 
     def __repr__(self) -> str:
-        _attr = ", ".join("{}={}".format(k, repr(v)) for k, v in self.__dict__.items() if k != "event_type")
+        _attr = ", ".join(
+            "{}={}".format(k, repr(v))
+            for k, v in self.__dict__.items()
+            if k != "event_type"
+        )
         return f"Event({self.event_type}, {_attr})"
+
+    def __getattribute__(self, *args, **kwargs) -> Any:  # for typing check
+        return super(Event, self).__getattribute__(*args, **kwargs)
 
 
 class EventBus(object):
