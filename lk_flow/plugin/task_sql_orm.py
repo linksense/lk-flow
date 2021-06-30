@@ -71,10 +71,34 @@ class TaskSQLOrmMod(ModAbstraction):
         task_orm = session.query(TaskOrm).all()
         tasks = [Task.from_orm(_task) for _task in task_orm]
         for task in tasks:
-            cls.add_task(task)
+            cls._add_task_to_system(task)
         session.close()
 
     @classmethod
-    def add_task(cls, task: Task) -> None:
+    def _add_task_to_system(cls, task: Task) -> None:
         """将数据库的task增加到系统中"""
         cls.context.add_task(task)
+
+    @classmethod
+    def create_task_orm(cls, task: Task) -> None:
+        """将task存储到数据库中"""
+        session = cls.db_session()
+        if session.query(TaskOrm).filter_by(name=task.name).first():
+            session.close()
+            raise ValueError(f"Task name is duplicated {task.name}")
+        obj = TaskOrm(**task.dict())
+        session.add(obj)
+        session.commit()
+        session.close()
+
+    @classmethod
+    def delete_task_orm(cls, task: Task) -> None:
+        """从数据库中删除任务"""
+        session = cls.db_session()
+        obj = session.query(TaskOrm).filter_by(name=task.name).first()
+        if not obj:
+            return
+        session.delete(obj)
+        session.commit()
+        session.close()
+        return

@@ -57,7 +57,7 @@ class TimeTrigger(ModAbstraction):
         通过context里已加载的task进行配置
         需要在SYSTEM_SETUP事件以后进行 （）
         """
-        tasks = [i.task for i in cls.context.PROCESS_ALL]
+        tasks = [i.config for i in cls.context.PROCESS_ALL.values()]
         for task in tasks:
             cls.add_task(task)
 
