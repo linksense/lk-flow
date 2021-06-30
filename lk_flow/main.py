@@ -15,6 +15,18 @@ from lk_flow.env import logger
 
 
 async def start_server() -> None:
+    """
+    启动系统
+
+    1.初始化Context
+    2.载入mod
+    3.setup_mod
+    4.发送SYSTEM_SETUP事件
+    5.开始server 不停发HEARTBEAT
+    6.接受到SYSTEM_CLOSE事件或异常结束
+    7.发送SYSTEM_TEARDOWN事件
+    8.teardown_mod
+    """
     context = Context(config=conf)
     loading_sys_plugin()
     loading_plugin(context.config.mod_dir)

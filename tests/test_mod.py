@@ -92,7 +92,7 @@ class TestMod:
         assert "init_mod ModA" in out
 
     def test_loading_plugin(self):
-        from lk_flow.plugin import trigger
+        from lk_flow.plugin import time_trigger
 
-        mod_dir = os.path.dirname(trigger.__file__)
+        mod_dir = os.path.dirname(time_trigger.__file__)
         loading_plugin(mod_dir)

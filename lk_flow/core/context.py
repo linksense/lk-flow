@@ -10,7 +10,7 @@ from typing import ClassVar, Dict, Optional
 from lk_flow.config import Config
 from lk_flow.core.event import EVENT, Event, EventBus
 from lk_flow.env import logger
-from lk_flow.models.subprocess import SubProcess
+from lk_flow.models import SubProcess, Task
 
 
 class Context:
@@ -89,3 +89,13 @@ class Context:
                 self.event_bus.publish_event(Event(EVENT.TASK_FINISH))
             else:  # raise error
                 self.event_bus.publish_event(Event(EVENT.TASK_RUNNING_ERROR))
+
+    def add_task(self, task: Task) -> None:
+        """添加任务到系统"""
+        if task.name in self.PROCESS_ALL:  # 已加载
+            logger.warning(f"{task} is already read")
+            return
+        process_manager = SubProcess(task)
+        self.PROCESS_ALL[task.name] = process_manager
+        self.PROCESS_SLEEPING[task.name] = process_manager
+        return

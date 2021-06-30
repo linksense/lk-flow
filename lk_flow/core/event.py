@@ -14,6 +14,8 @@ from lk_flow.utils import time_consuming_log
 class EVENT(Enum):
     # 系统初始化
     SYSTEM_SETUP = "system_setup"
+    # # 系统启动事件
+    # SYSTEM_START = "system_start"
     # 心跳 刷新用
     HEARTBEAT = "heartbeat"
     # 系统致循环结束

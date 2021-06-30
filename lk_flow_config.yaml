@@ -6,7 +6,7 @@
 #sentry_dns: null
 
 mod_config:
-  TimeTrigger:
+  TaskSQLOrmMod:
     enable: true
     SQLALCHEMY_DATABASE_URI: sqlite:///lk_flow.db
 
