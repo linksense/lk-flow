@@ -2,6 +2,7 @@
 # encoding: utf-8
 import logging
 
+import nest_asyncio
 import sentry_sdk
 from flask import Flask
 
@@ -21,6 +22,6 @@ def init_log(log: logging.Logger) -> logging.Logger:
 logger = logging.getLogger("lk_flow")
 init_log(logger)
 del init_log
-
+nest_asyncio.apply()
 app = Flask(__name__)
 app.config.from_object(conf)

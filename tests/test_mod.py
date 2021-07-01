@@ -25,9 +25,6 @@ class TestMod:
 
     @classmethod
     def setup_class(cls):
-        cls.context = Context(config=conf)
-        cls.context.config.mod_config["ModC"] = {"enable": False}
-
         class ModA(ModAbstraction):
             @classmethod
             def init_mod(cls, mod_config: Dict[str, Any]) -> None:
@@ -61,12 +58,16 @@ class TestMod:
             "ModC": ModC,
         }
 
-    def test_setup_mod(self, capsys):
+    def setup_method(self):
+        self.context = Context(config=conf)
+        self.context.config.mod_config["ModC"] = {"enable": False}
+        self.context.config.mod_config["HttpControlServer"] = {"enable": False}
+
+    def test_setup_and_teardown_mod(self, capsys):
         setup_mod(self.context)
         out, err = capsys.readouterr()
         assert "setup_mod ModB" in out
 
-    def test_teardown_mod(self, capsys):
         teardown_mod(self.context)
         out, err = capsys.readouterr()
         assert "teardown_mod ModB" in out

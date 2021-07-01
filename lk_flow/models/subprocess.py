@@ -9,7 +9,7 @@ import os
 from typing import Dict, List, Optional, Tuple
 
 from lk_flow.env import logger
-from lk_flow.errors import ProcessRuntimeError, RunError
+from lk_flow.errors import RunError
 from lk_flow.models.tasks import Task
 
 
@@ -131,8 +131,16 @@ class SubProcess:
             self.pid = None
             task_out.cancel()
             task_err.cancel()
-            if exit_code != 0:
-                raise ProcessRuntimeError(f"{self.config} exit with code {exit_code}")
+            from lk_flow.core import EVENT, Context, Event
+
+            event_bus = Context.get_instance().event_bus
+            if self.exit_code == 0:
+                # normal exit
+                event_bus.publish_event(Event(EVENT.TASK_FINISH, task_name=self.name))
+            else:  # raise error
+                event_bus.publish_event(
+                    Event(EVENT.TASK_RUNNING_ERROR, task_name=self.name)
+                )
         self.exit_code = exit_code
         return exit_code
 
@@ -153,5 +161,4 @@ class SubProcess:
         return False
 
     def __del__(self):
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(self.stop())
+        asyncio.run(self.stop())

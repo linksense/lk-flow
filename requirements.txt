@@ -14,3 +14,7 @@ flask_mongoengine
 flask_sqlalchemy
 sqlalchemy
 croniter
+
+uvicorn
+fastapi
+nest_asyncio

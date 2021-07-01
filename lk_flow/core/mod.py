@@ -55,7 +55,7 @@ def mod_init(context: Context) -> None:
         if not mod_config.get("enable", True):
             logger.info(f"[{name} mod] not enabled. pass.")
             continue
-        context.mod_map[name] = mod
+        context.add_mod_map(name, mod)
         logger.info(f"[{name} mod] init start")
         mod.init_mod(mod_config)
         logger.info(f"[{name} mod] init finish")
@@ -69,7 +69,7 @@ def setup_mod(context: Context) -> None:
         if not mod_config.get("enable", True):
             logger.info(f"[{name} mod] not enabled. pass.")
             continue
-        context.mod_map[name] = mod
+        context.add_mod_map(name, mod)
         logger.info(f"[{name} mod] setup start")
         mod.setup_mod(mod_config)
         logger.info(f"[{name} mod] setup finish")
@@ -78,7 +78,7 @@ def setup_mod(context: Context) -> None:
 @time_consuming_log(logging.INFO)
 def teardown_mod(context: Context) -> None:
     """teardown all mod"""
-    for name, mod in context.mod_map.items():
+    for name, mod in context.get_mod_map():
         logger.info(f"[{name} mod] teardown start")
         mod.teardown_mod()
         logger.info(f"[{name} mod] teardown finish")

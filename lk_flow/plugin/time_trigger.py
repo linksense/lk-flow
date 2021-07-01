@@ -34,10 +34,10 @@ class TimeTrigger(ModAbstraction):
             # 在运行的跳过
             if cls.context.is_running(task_name):
                 continue
-            process_manager = cls.context.PROCESS_ALL[task_name]
+            process_manager = cls.context.get_process(task_name)
             # 未运行的判断是否运行
             if cls._should_start(event.now, task_name):
-                cls.context.run(task_name)
+                cls.context.start_task(task_name)
                 cls.PROCESS_SCHEDULE[task_name] = croniter(
                     process_manager.config.cron_expression
                 ).next(datetime.datetime)
@@ -57,7 +57,7 @@ class TimeTrigger(ModAbstraction):
         通过context里已加载的task进行配置
         需要在SYSTEM_SETUP事件以后进行 （）
         """
-        tasks = [i.config for i in cls.context.PROCESS_ALL.values()]
+        tasks = [i.config for _, i in cls.context.get_all_processes()]
         for task in tasks:
             cls.add_task(task)
 

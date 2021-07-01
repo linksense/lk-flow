@@ -16,8 +16,9 @@ class TestTrigger:
     @classmethod
     def setup_class(cls):
         cls.context = Context(config=conf)
+        cls.context.config.mod_config["HttpControlServer"] = {"enable": False}
         setup_mod(cls.context)
-        cls.mod: TaskSQLOrmMod = cls.context.mod_map["TaskSQLOrmMod"]
+        cls.mod: TaskSQLOrmMod = cls.context.get_mod("TaskSQLOrmMod")
 
     def test_save_task(self):
         make_echo_task = Task(

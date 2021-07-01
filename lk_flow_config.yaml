@@ -20,7 +20,7 @@ mod_config:
 ### 系统配置
 
 #LOG_FORMAT: '[%(asctime)s] [%(threadName)s:%(thread)d] [%(levelname)s]: %(message)s [%(pathname)s <%(lineno)d>]'
-#LOG_LEVEL: "DEBUG"
+LOG_LEVEL: "INFO"
 #SECRET_KEY: ''
 #SQLALCHEMY_TRACK_MODIFICATIONS: True
 #SQLALCHEMY_ECHO: False

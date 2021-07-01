@@ -23,3 +23,7 @@ class RunningError(_BaseError):
 
 class ProcessRuntimeError(_BaseError):
     """子进程运行错误"""
+
+
+class DuplicateModError(_BaseError, KeyError):
+    """mod名称重复"""

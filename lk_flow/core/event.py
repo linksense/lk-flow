@@ -24,9 +24,14 @@ class EVENT(Enum):
     SYSTEM_TEARDOWN = "system_teardown"
 
     # Task
+    TASK_ADD = "task_add"
+    TASK_DELETE = "task_delete"
+
     TASK_PRE_START = "task_pre_start"
     TASK_RUNNING = "task_running"
+    TASK_STOP = "task_stop"
     TASK_FINISH = "task_finish"
+
     TASK_RUNNING_ERROR = "task_running_error"  # running 时报错
 
     TASK_FINISH_ERROR = "task_finish_error"  # TASK_AFTER_FINISH 的钩子事件导致的报错
