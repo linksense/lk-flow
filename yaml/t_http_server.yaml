@@ -1,0 +1,8 @@
+name: "t_http_server"
+command: "python -m http.server 22"
+directory: "."
+auto_restart: false
+restart_retries: 0
+environment: null
+cron_expression: null
+trigger_events: null

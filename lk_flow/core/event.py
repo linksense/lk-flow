@@ -23,10 +23,10 @@ class EVENT(Enum):
     # 系统关闭
     SYSTEM_TEARDOWN = "system_teardown"
 
-    # Task
+    # Task CRUD
     TASK_ADD = "task_add"
     TASK_DELETE = "task_delete"
-
+    # Task Run
     TASK_PRE_START = "task_pre_start"
     TASK_RUNNING = "task_running"
     TASK_STOP = "task_stop"

@@ -71,13 +71,8 @@ class TaskSQLOrmMod(ModAbstraction):
         task_orm = session.query(TaskOrm).all()
         tasks = [Task.from_orm(_task) for _task in task_orm]
         for task in tasks:
-            cls._add_task_to_system(task)
+            cls.context.add_task(task)
         session.close()
-
-    @classmethod
-    def _add_task_to_system(cls, task: Task) -> None:
-        """将数据库的task增加到系统中"""
-        cls.context.add_task(task)
 
     @classmethod
     def create_task_orm(cls, task: Task) -> None:

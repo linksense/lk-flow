@@ -23,6 +23,11 @@ class TimeTrigger(ModAbstraction):
         cls.context.event_bus.add_listener(EVENT.SYSTEM_SETUP, cls.init_time_trigger)
         cls.context.event_bus.add_listener(EVENT.HEARTBEAT, cls.work)
 
+        cls.context.event_bus.add_listener(EVENT.TASK_ADD, cls.add_task_event_listener)
+        cls.context.event_bus.add_listener(
+            EVENT.TASK_DELETE, cls.delete_task_event_listener
+        )
+
     @classmethod
     def teardown_mod(cls) -> None:
         pass
@@ -43,12 +48,20 @@ class TimeTrigger(ModAbstraction):
                 ).next(datetime.datetime)
 
     @classmethod
+    def delete_task_event_listener(cls, event: Event) -> None:
+        cls.PROCESS_SCHEDULE.pop(event.task_name, None)
+
+    @classmethod
+    def add_task_event_listener(cls, event: Event) -> None:
+        task: Task = event.task
+        cls.add_task(task)
+
+    @classmethod
     def add_task(cls, task: Task) -> None:
         """添加任务到系统"""
         if task.cron_expression:  # 定时启动
-            cls.PROCESS_SCHEDULE[task.name] = croniter(task.cron_expression).next(
-                datetime.datetime
-            )
+            next_datetime = croniter(task.cron_expression).next(datetime.datetime)
+            cls.PROCESS_SCHEDULE[task.name] = next_datetime
 
     @classmethod
     def init_time_trigger(cls, _: Event) -> None:

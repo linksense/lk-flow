@@ -1,0 +1,8 @@
+name: "t_http_server"
+command: /usr/bin/echo "this is a echo message"
+directory: "."
+auto_restart: false
+restart_retries: 3
+environment: null
+cron_expression: null
+trigger_events: task_pre_start__t_http_server

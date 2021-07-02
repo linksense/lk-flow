@@ -96,7 +96,13 @@ class Context:
         # start
         asyncio.get_event_loop().run_until_complete(process_manager.start())
         # running
-        self.event_bus.publish_event(Event(EVENT.TASK_RUNNING, task_name=task_name))
+        event = Event(
+            EVENT.TASK_RUNNING,
+            task_name=task_name,
+            task=process_manager.config,
+            process=process_manager,
+        )
+        self.event_bus.publish_event(event)
 
     def stop_task(self, task_name: str) -> None:
         """停止进程"""
@@ -106,7 +112,13 @@ class Context:
         # stop
         asyncio.get_event_loop().run_until_complete(process_manager.stop())
         # running
-        self.event_bus.publish_event(Event(EVENT.TASK_STOP, task_name=task_name))
+        event = Event(
+            EVENT.TASK_STOP,
+            task_name=task_name,
+            task=process_manager.config,
+            process=process_manager,
+        )
+        self.event_bus.publish_event(event)
 
     def add_task(self, task: Task) -> Optional[SubProcess]:
         """添加任务到系统"""
@@ -117,7 +129,10 @@ class Context:
         self._PROCESS_ALL[task.name] = process_manager
         self._PROCESS_STOPPED[task.name] = process_manager
 
-        self.event_bus.publish_event(Event(EVENT.TASK_ADD, task_name=task.name))
+        event = Event(
+            EVENT.TASK_ADD, task_name=task.name, task=task, process=process_manager
+        )
+        self.event_bus.publish_event(event)
         return process_manager
 
     def delete_task(self, task_name: str) -> None:
