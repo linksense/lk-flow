@@ -6,13 +6,17 @@ from __future__ import annotations
 
 import abc
 import importlib.util
+import inspect
 import logging
 import os
-from typing import Any, Dict, Optional, Type
+from typing import Any, Callable, Dict, Optional, Type
 
+from lk_flow.config import conf
 from lk_flow.core import Context
 from lk_flow.env import logger
 from lk_flow.utils import time_consuming_log
+
+_sub_class_map: Dict[str, Type[ModAbstraction]] = {}
 
 
 class ModAbstraction:
@@ -32,25 +36,14 @@ class ModAbstraction:
         """mod关闭时 会执行的函数"""
 
     @classmethod
-    def sub_classes(cls) -> Dict[str, Type[ModAbstraction]]:
-        """
-        返回所有继承的子类
-
-        遇到继承时，所有子类都会被启动
-        """
-        subs = {_class.__name__: _class for _class in cls.__subclasses__()}
-        for _name, _class in subs.copy().items():
-            if sub_subs := _class.sub_classes():
-                if subs.keys() & sub_subs.keys():
-                    raise KeyError("存在相同名称的Mod")
-                subs.update(sub_subs)
-        return subs
+    def get_commands(cls, mod_config: Dict[str, Any]) -> Dict[str, Callable]:
+        """增加系统默认命令"""
 
 
 @time_consuming_log(logging.INFO)
 def mod_init(context: Context) -> None:
     """init mod"""
-    for name, mod in ModAbstraction.sub_classes().items():
+    for name, mod in _sub_class_map.items():
         mod_config: dict = context.config.mod_config[name]
         if not mod_config.get("enable", True):
             logger.info(f"[{name} mod] not enabled. pass.")
@@ -64,7 +57,7 @@ def mod_init(context: Context) -> None:
 @time_consuming_log(logging.INFO)
 def setup_mod(context: Context) -> None:
     """setup all mod"""
-    for name, mod in ModAbstraction.sub_classes().items():
+    for name, mod in _sub_class_map.items():
         mod_config: dict = context.config.mod_config[name]
         if not mod_config.get("enable", True):
             logger.info(f"[{name} mod] not enabled. pass.")
@@ -94,10 +87,19 @@ def _loading_plugin(dir_path: str) -> None:
         )
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
-        logger.info(f"Loading plugin {_file}")
+        for _name, _sub_class in mod.__dict__.items():
+            if (
+                "ModAbstraction" != _name
+                and inspect.isclass(_sub_class)
+                and issubclass(_sub_class, ModAbstraction)
+            ):
+                if _name in _sub_class_map.keys():
+                    raise KeyError("存在相同名称的Mod")
+                _sub_class_map[_name] = _sub_class
+        logger.debug(f"Loading plugin {_file}")
 
 
-def loading_sys_plugin() -> None:
+def _loading_sys_plugin() -> None:
     """载入系统mod"""
     dir_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../plugin"))
     _loading_plugin(dir_path)
@@ -105,9 +107,32 @@ def loading_sys_plugin() -> None:
 
 def loading_plugin(mod_dir: Optional[str]) -> None:
     """通过config.mod_dir载入mod"""
+    if conf.mod_loaded:
+        logger.info("mod is already loaded. pass")
+        return
+
+    _loading_sys_plugin()
     if mod_dir:
         logger.info(f"Loading {mod_dir} mods")
-        return _loading_plugin(mod_dir)
+        _loading_plugin(mod_dir)
     else:
-        logger.info(f"mod_dir = {mod_dir}, pass")
-        return
+        logger.debug(f"mod_dir = {mod_dir}, pass loading user plugin")
+    conf.mod_loaded = True
+    return
+
+
+def loading_plugin_command() -> Dict[str, Callable]:
+    loading_plugin(conf.mod_dir)
+    command_map = dict()
+    for name, mod in _sub_class_map.items():
+        mod_config: dict = conf.mod_config[name]
+        if not mod_config.get("enable", True):
+            logger.debug(f"[{name} mod] not enabled. pass.")
+            continue
+        mod_command_map: Dict[str, Callable] = mod.get_commands(mod_config)
+        if mod_command_map:
+            logger.debug(f"[{name} mod] loading commands {mod_command_map.keys}")
+            command_map.update(mod_command_map)
+
+    conf.mod_loaded = True
+    return command_map

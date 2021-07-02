@@ -18,3 +18,4 @@ croniter
 uvicorn
 fastapi
 nest_asyncio
+requests

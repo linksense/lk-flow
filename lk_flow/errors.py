@@ -27,3 +27,7 @@ class ProcessRuntimeError(_BaseError):
 
 class DuplicateModError(_BaseError, KeyError):
     """mod名称重复"""
+
+
+class DuplicateTaskNameError(_BaseError, KeyError):
+    """mod名称重复"""

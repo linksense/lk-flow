@@ -39,7 +39,7 @@ class HookTrigger(ModAbstraction):
     def add_task_hook(cls, trigger_events: str, trigger_task_name: str) -> True:
         """Task.trigger_events解析
 
-        Args:
+        Args:[动画表情]
             trigger_events: eg.'Event_Name__hook_task_name Event_Name2__hook_task_name2'
             trigger_task_name: 事件被触发时，启动的task名
         """

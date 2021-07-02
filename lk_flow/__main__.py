@@ -6,15 +6,6 @@ import fire
 from lk_flow.core import loading_plugin
 
 
-def entry_point() -> None:  # pragma: no cover
-    """
-    默认函数 触发fire包
-    https://github.com/google/python-fire
-    """
-    fire.core.Display = lambda lines, out: print(*lines, file=out)
-    fire.Fire()
-
-
 def ipython() -> None:  # pragma: no cover
     """打开ipython命令"""
     from IPython import embed
@@ -41,12 +32,29 @@ def run() -> None:  # pragma: no cover
 def init() -> None:
     """初始化系统"""
     from lk_flow.config import conf
-    from lk_flow.core import Context, loading_sys_plugin, mod_init
+    from lk_flow.core import Context, mod_init
 
     context = Context(config=conf)
-    loading_sys_plugin()
     loading_plugin(context.config.mod_dir)
     mod_init(context)
+
+
+def entry_point() -> None:  # pragma: no cover
+    """
+    默认函数 触发fire包
+    https://github.com/google/python-fire
+    """
+
+    from lk_flow.core.mod import loading_plugin_command
+
+    command_map = {
+        "version": version,
+        "run": run,
+        "init": init,
+    }
+    command_map.update(loading_plugin_command())
+    fire.core.Display = lambda lines, out: print(*lines, file=out)
+    fire.Fire(command_map)
 
 
 if __name__ == "__main__":

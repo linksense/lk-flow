@@ -27,6 +27,8 @@ class TaskOrm(Model):
     cron_expression = Column(String())  # None 表示不定时
     trigger_events = Column(String())
 
+    extra_json = Column(String(), default="{}")
+
 
 class TaskSQLOrmMod(ModAbstraction):
     engine: Engine

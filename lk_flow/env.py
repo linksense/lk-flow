@@ -4,7 +4,6 @@ import logging
 
 import nest_asyncio
 import sentry_sdk
-from flask import Flask
 
 from lk_flow.config import conf
 
@@ -23,5 +22,3 @@ logger = logging.getLogger("lk_flow")
 init_log(logger)
 del init_log
 nest_asyncio.apply()
-app = Flask(__name__)
-app.config.from_object(conf)

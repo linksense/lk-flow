@@ -6,6 +6,7 @@ import asyncio
 import datetime
 import logging
 import os
+from enum import Enum
 from typing import Dict, List, Optional, Tuple
 
 from lk_flow.env import logger
@@ -13,11 +14,19 @@ from lk_flow.errors import RunError
 from lk_flow.models.tasks import Task
 
 
+class ProcessStatus(str, Enum):
+    sleeping = "sleeping"
+    exit_normal = "exit_normal"
+    exit_error = "exit_error"
+    stop = "stop"
+    running = "running"
+
+
 class SubProcess:
     def __init__(self, config: Task):
         self.config: Task = config
         self.pid: Optional[int] = None  # Subprocess pid; None when not running
-        self.state: Optional[str] = None  # process state
+        self.state: Optional[str] = ProcessStatus.sleeping  # process state
         self.name: str = config.name
         self.exit_code: Optional[int] = None
 
@@ -126,7 +135,10 @@ class SubProcess:
 
         if current process not manager process, will not replace pid.
         """
+        self.state = ProcessStatus.running
+        self.last_start_datetime = datetime.datetime.now()
         exit_code = await process.wait()
+        self.last_stop_datetime = datetime.datetime.now()
         if self.process == process:
             self.pid = None
             task_out.cancel()
@@ -136,8 +148,10 @@ class SubProcess:
             event_bus = Context.get_instance().event_bus
             if self.exit_code == 0:
                 # normal exit
+                self.state = ProcessStatus.exit_normal
                 event_bus.publish_event(Event(EVENT.TASK_FINISH, task_name=self.name))
             else:  # raise error
+                self.state = ProcessStatus.exit_error
                 event_bus.publish_event(
                     Event(EVENT.TASK_RUNNING_ERROR, task_name=self.name)
                 )
@@ -147,8 +161,10 @@ class SubProcess:
     async def stop(self) -> None:
         if self.is_running():
             self.process.terminate()
+            self.last_stop_datetime = datetime.datetime.now()
             self._watcher_task.cancel()
             self.pid = None
+            self.state = ProcessStatus.stop
 
     async def restart(self) -> None:
         await self.stop()

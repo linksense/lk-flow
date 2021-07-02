@@ -1,4 +1,4 @@
-name: "t_http_server"
+name: "t_echo"
 command: /usr/bin/echo "this is a echo message"
 directory: "."
 auto_restart: false

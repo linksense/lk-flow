@@ -14,9 +14,11 @@ class Task(BaseModel):
     auto_restart: bool = False
     restart_retries: int = 0
     environment: str = None
-    cron_expression: str = None  # None 表示不定时
 
-    trigger_events: str = None
+    cron_expression: str = None  # None 表示不定时
+    trigger_events: str = None  # None 表示无钩子事件
+
+    extra_json: str = "{}"  # 额外字段用于mod扩展
 
     class Config:
         orm_mode = True

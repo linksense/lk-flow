@@ -11,7 +11,6 @@ from lk_flow.core.event import EVENT, Event, EventBus
 from lk_flow.core.mod import (
     ModAbstraction,
     loading_plugin,
-    loading_sys_plugin,
     mod_init,
     setup_mod,
     teardown_mod,
@@ -23,7 +22,6 @@ __all__ = [
     setup_mod,
     teardown_mod,
     ModAbstraction,
-    loading_sys_plugin,
     loading_plugin,
     # event stuff
     EVENT,

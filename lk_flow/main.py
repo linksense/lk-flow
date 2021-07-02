@@ -8,7 +8,7 @@ import datetime
 import traceback
 
 from lk_flow.config import conf
-from lk_flow.core import Context, loading_sys_plugin
+from lk_flow.core import Context
 from lk_flow.core.event import EVENT, Event
 from lk_flow.core.mod import loading_plugin, setup_mod, teardown_mod
 from lk_flow.env import logger
@@ -28,7 +28,6 @@ async def start_server() -> None:
     8.teardown_mod
     """
     context = Context(config=conf)
-    loading_sys_plugin()
     loading_plugin(context.config.mod_dir)
     setup_mod(context)
     # setup server

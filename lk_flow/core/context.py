@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Dict, ItemsView, Optional, Type
 from lk_flow.config import Config
 from lk_flow.core.event import EVENT, Event, EventBus
 from lk_flow.env import logger
-from lk_flow.errors import DuplicateModError
+from lk_flow.errors import DuplicateModError, DuplicateTaskNameError
 from lk_flow.models import SubProcess, Task
 
 if TYPE_CHECKING:
@@ -95,6 +95,7 @@ class Context:
         self.event_bus.publish_event(Event(EVENT.TASK_PRE_START, task_name=task_name))
         # start
         asyncio.get_event_loop().run_until_complete(process_manager.start())
+        self._PROCESS_RUNNING[task_name] = process_manager
         # running
         event = Event(
             EVENT.TASK_RUNNING,
@@ -111,6 +112,7 @@ class Context:
         process_manager: SubProcess = self._PROCESS_RUNNING.pop(task_name)
         # stop
         asyncio.get_event_loop().run_until_complete(process_manager.stop())
+        self._PROCESS_STOPPED[task_name] = process_manager
         # running
         event = Event(
             EVENT.TASK_STOP,
@@ -123,8 +125,10 @@ class Context:
     def add_task(self, task: Task) -> Optional[SubProcess]:
         """添加任务到系统"""
         if task.name in self._PROCESS_ALL:  # 已加载
-            logger.warning(f"{task} is already read")
-            return
+            message = f"{task.name} is already used. {task}"
+            raise DuplicateTaskNameError(message)
+
+        logger.debug(f"add task: {task}")
         process_manager = SubProcess(task)
         self._PROCESS_ALL[task.name] = process_manager
         self._PROCESS_STOPPED[task.name] = process_manager
@@ -172,7 +176,7 @@ class Context:
         进程正常退出则发送 TASK_FINISH事件
         异常退出发送 TASK_RUNNING_ERROR事件
         """
-        for name, subprocess in self._PROCESS_RUNNING.copy():
+        for name, subprocess in self._PROCESS_RUNNING.copy().items():
             if subprocess.exit_code is None:
                 # still running
                 continue
