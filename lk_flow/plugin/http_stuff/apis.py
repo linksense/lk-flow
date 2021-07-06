@@ -2,10 +2,13 @@
 # encoding: utf-8
 # Created by zza on 2021/7/1 14:27
 # Copyright 2021 LinkSense Technology CO,. Ltd
+
 import uvicorn
-from fastapi import APIRouter, FastAPI
+from fastapi import APIRouter, Body, FastAPI, Request
+from starlette.responses import JSONResponse
 
 from lk_flow.core import EVENT, Context, Event
+from lk_flow.errors import _BaseError
 from lk_flow.models import Task
 from lk_flow.plugin.http_stuff.models import (
     CommonResponse,
@@ -15,6 +18,10 @@ from lk_flow.plugin.http_stuff.models import (
 )
 
 api_router = APIRouter()
+
+
+async def base_error_handler(request: Request, exc: _BaseError) -> JSONResponse:
+    return JSONResponse(status_code=200, content={"message": exc.message, "code": -1})
 
 
 @api_router.get("/", response_model=ProcessMapResponse)
@@ -31,7 +38,7 @@ async def system_info() -> ProcessMapResponse:
 async def system_close() -> CommonResponse:
     """发送关闭系统事件 随后关闭系统"""
     context = Context.get_instance()
-    context.event_bus.publish_event(Event(EVENT.SYSTEM_CLOSE))
+    context.event_bus.publish_event(Event(EVENT.EXEC_SYSTEM_CLOSE))
     return CommonResponse(message="system_close")
 
 
@@ -70,6 +77,23 @@ async def task_delete(task_name: str) -> CommonResponse:
     return CommonResponse()
 
 
+@api_router.post("/tasks/{task_name}", response_model=CommonResponse)
+async def task_save_to_yaml(
+    task_name: str, file_path: str = Body("./yaml"), force: bool = Body(True)
+) -> CommonResponse:
+    """将task保存至yaml"""
+    from lk_flow.plugin.task_yaml_loader import TaskYamlLoader
+
+    context = Context.get_instance()
+    task = context.get_process(task_name).config
+    try:
+        mod: TaskYamlLoader = context.get_mod("TaskYamlLoader")
+    except KeyError:
+        return CommonResponse(code=0, message="TaskYamlLoader not enable")
+    mod.dump_to_file(task=task, file_path=file_path, force=force)
+    return CommonResponse(message="ok")
+
+
 async def start_server(
     host: str = "0.0.0.0",
     port: int = 9002,
@@ -79,6 +103,7 @@ async def start_server(
     """启动服务"""
     app = FastAPI()
     app.include_router(api_router, prefix=api_path)
+    app.add_exception_handler(_BaseError, base_error_handler)
     config = uvicorn.Config(
         app, host=host, port=port, log_level=log_level, reload=False
     )

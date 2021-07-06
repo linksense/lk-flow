@@ -18,7 +18,9 @@ class EVENT(Enum):
     # SYSTEM_START = "system_start"
     # 心跳 刷新用
     HEARTBEAT = "heartbeat"
-    # 系统致循环结束
+    # 执行系统循环结束
+    EXEC_SYSTEM_CLOSE = "exec_system_close"
+    # 系统循环结束
     SYSTEM_CLOSE = "system_close"
     # 系统关闭
     SYSTEM_TEARDOWN = "system_teardown"

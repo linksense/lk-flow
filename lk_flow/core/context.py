@@ -33,7 +33,7 @@ class Context:
         self._PROCESS_STOPPED = {}  # 未激活 or 已结束的
         self._mod_map: Dict[str, Type["ModAbstraction"]] = {}
         # add add_listener
-        self.event_bus.add_listener(EVENT.SYSTEM_CLOSE, self.close_loop)
+        self.event_bus.add_listener(EVENT.EXEC_SYSTEM_CLOSE, self._close_loop)
         self.event_bus.add_listener(EVENT.HEARTBEAT, self.state_check)
 
     @classmethod
@@ -65,7 +65,7 @@ class Context:
             raise DuplicateModError(_message)
         self._mod_map[mod_name] = mod
 
-    def get_mod(self, mod_name: str) -> Type["ModAbstraction"]:
+    def get_mod(self, mod_name: str) -> Type[Type["ModAbstraction"]]:
         return self._mod_map[mod_name]
 
     # Process
@@ -157,12 +157,13 @@ class Context:
 
     # System
 
-    def close_loop(self, event: Event) -> Optional[True]:
+    def _close_loop(self, event: Event) -> Optional[True]:
         """关闭循环"""
         self.loop_enable = False
-        for task_name in self._PROCESS_RUNNING.keys():
+        for task_name in self._PROCESS_RUNNING.copy().keys():
             self.stop_task(task_name)
         logger.info(f"Get {event}, close loop.")
+        self.event_bus.publish_event(Event(EVENT.SYSTEM_CLOSE))
 
     def is_running(self, task_name: str) -> bool:
         """check is running"""

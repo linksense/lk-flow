@@ -3,10 +3,13 @@
 # Created by zza on 2021/7/5 14:25
 # Copyright 2021 LinkSense Technology CO,. Ltd
 import functools
+import json
 from typing import Callable, Dict, List
 
 import pandas
 import requests
+
+from lk_flow.models import Task
 
 
 class ControlCommands:
@@ -81,5 +84,43 @@ class ControlCommands:
     def stop(self, task_name: str) -> str:
         """手动停止task"""
         url = f"{self._base_path}/process/{task_name}/stop"
-        result: str = requests.get(url).json()["data"]["pid"]
+        result: str = requests.get(url).json()["data"]["state"]
+        return result
+
+    def restart(self, task_name: str) -> str:
+        """重启task"""
+        ret = self.stop(task_name)
+        if ret != "stop":
+            print(f"{task_name} is not running: {ret}")
+        return self.start(task_name)
+
+    def create(self, task_json: str = None) -> str:
+        """
+        创建task
+
+        Example:
+            $ lk_flow create "{\"name\": \"t_date\", \"command\": \"date\", \"directory\": \".\"}"
+        """
+        from lk_flow.plugin.http_stuff._pydantic_input_helper import input_helper
+
+        if task_json:
+            if isinstance(task_json, dict):
+                obj = Task(**task_json)
+            else:
+                try:
+                    obj = Task(**json.loads(task_json))
+                except json.decoder.JSONDecodeError as err:
+                    return f"json 解析错误:{err}"
+        else:
+            obj = input_helper(Task)
+            print(f"Task json: {obj.json()}")
+        url = f"{self._base_path}/process"
+        resp = requests.post(url, json=obj.dict())
+        result: dict = resp.json()
+        return result["message"]
+
+    def delete(self, task_name: str) -> str:
+        """删除task"""
+        url = f"{self._base_path}/process/{task_name}"
+        result: str = requests.delete(url).json()["message"]
         return result

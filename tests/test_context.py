@@ -33,7 +33,7 @@ class TestContext:
                 context = Context.get_instance()
                 assassins_listened.append(event)
                 if len(assassins_listened) > 2:
-                    context.event_bus.publish_event(Event(EVENT.SYSTEM_CLOSE))
+                    context.event_bus.publish_event(Event(EVENT.EXEC_SYSTEM_CLOSE))
                     return True
 
         run()

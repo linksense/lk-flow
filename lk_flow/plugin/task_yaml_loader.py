@@ -36,3 +36,18 @@ class TaskYamlLoader(ModAbstraction):
     @classmethod
     def teardown_mod(cls) -> None:
         pass
+
+    @classmethod
+    def dump_to_file(
+        cls, task: Task, file_path: str = "./yaml", force: bool = True
+    ) -> None:
+        """将task保存至yaml"""
+        if not force and (
+            not os.path.exists(file_path) or not os.path.isdir(file_path)
+        ):
+            raise FileNotFoundError(f"dir {file_path} exists")
+        yaml_str = yaml.dump(task.dict())
+        path = os.path.join(file_path, f"{file_path}.yaml")
+        with open(path, "w", encoding="utf8") as f:
+            f.write(yaml_str)
+        return
