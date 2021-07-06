@@ -19,3 +19,4 @@ uvicorn
 fastapi
 nest_asyncio
 requests
+pandas
