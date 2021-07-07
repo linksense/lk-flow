@@ -5,6 +5,8 @@
 
 from typing import Any, Dict
 
+import pytest
+
 from lk_flow.__main__ import run
 from lk_flow.config import conf
 from lk_flow.core import EVENT, Context, Event, ModAbstraction
@@ -15,6 +17,7 @@ class TestContext:
     def setup_class(cls):
         conf.mod_config["HttpControlServer"] = {"enable": False}
 
+    @pytest.mark.timeout(5)
     def test_run(self):
         assassins_listened = []
 
@@ -36,9 +39,12 @@ class TestContext:
                     context.event_bus.publish_event(Event(EVENT.EXEC_SYSTEM_CLOSE))
                     return True
 
+        from lk_flow.core.mod import _sub_class_map
+        _sub_class_map[Assassins.__name__] = Assassins
         run()
         assert len(assassins_listened) > 2
 
+    @pytest.mark.timeout(5)
     def test_catch_error(self):
         class Terrorists(ModAbstraction):
             @classmethod

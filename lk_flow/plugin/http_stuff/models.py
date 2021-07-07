@@ -16,6 +16,8 @@ class SubProcessModel(BaseModel):
     pid: Optional[int] = None  # Subprocess pid; None when not running
     state: Optional[str] = None  # process state
     exit_code: Optional[int] = None
+    stdout_logfile: Optional[str] = None
+    stderr_logfile: Optional[str] = None
 
     last_start_datetime: Optional[datetime.datetime] = None
     last_stop_datetime: Optional[datetime.datetime] = None

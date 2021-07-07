@@ -19,6 +19,9 @@ class Task(BaseModel):
     restart_retries: int = 0
     environment: str = None
 
+    stdout_logfile: str = None
+    stderr_logfile: str = None
+
     cron_expression: str = None  # None 表示不定时
     trigger_events: str = None  # None 表示无钩子事件
 
@@ -34,7 +37,7 @@ class Task(BaseModel):
     def trigger_events_validator(cls, value: str) -> str:
         if not value:
             return value
-        for item in value.strip():
+        for item in value.split():
             if "__" not in item:
                 raise InvalidTriggerEvents()
         return value

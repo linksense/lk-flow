@@ -5,6 +5,8 @@
 """ 总启动流程文件 """
 import asyncio
 import datetime
+import logging
+import os
 import traceback
 
 from lk_flow.config import conf
@@ -12,6 +14,14 @@ from lk_flow.core import Context
 from lk_flow.core.event import EVENT, Event
 from lk_flow.core.mod import loading_plugin, setup_mod, teardown_mod
 from lk_flow.env import logger
+
+
+def _make_sys_log_file() -> None:
+    if not os.path.exists(conf.log_save_dir):
+        os.mkdir(conf.log_save_dir)
+    log_file = os.path.join(conf.log_save_dir, "lk_flow.log")
+    file_handler = logging.FileHandler(log_file, encoding="utf8")
+    logger.addHandler(file_handler)
 
 
 async def start_server() -> None:
@@ -27,6 +37,7 @@ async def start_server() -> None:
     7.发送SYSTEM_TEARDOWN事件
     8.teardown_mod
     """
+    _make_sys_log_file()
     context = Context(config=conf)
     loading_plugin(context.config.mod_dir)
     setup_mod(context)

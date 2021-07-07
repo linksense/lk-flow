@@ -29,6 +29,7 @@ class Config:
         os.path.join(os.path.abspath("."), "lk_flow.db")
     )
 
+    log_save_dir = "/var/log/lk_flow"
     sentry_dns = None
     # 配置文件
     sleep_time = 5

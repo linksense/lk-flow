@@ -17,6 +17,10 @@ class RunError(_BaseError):
     """启动时报错"""
 
 
+class DictionaryNotExist(_BaseError):
+    """文件夹不存在"""
+
+
 class ModNotFoundError(RunError):
     """Mod没有找到"""
 

@@ -24,6 +24,8 @@ class TaskOrm(Model):
     auto_restart = Column(Boolean, default=False, nullable=False)
     restart_retries = Column(Integer, default=0, nullable=False)
     environment = Column(String())
+    stdout_logfile = Column(String())
+    stderr_logfile = Column(String())
     cron_expression = Column(String())  # None 表示不定时
     trigger_events = Column(String())
 

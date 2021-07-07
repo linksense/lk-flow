@@ -9,8 +9,9 @@ import os
 from enum import Enum
 from typing import Dict, List, Optional, Tuple
 
+from lk_flow.config import conf
 from lk_flow.env import logger
-from lk_flow.errors import RunError
+from lk_flow.errors import DictionaryNotExist, RunError
 from lk_flow.models.tasks import Task
 
 
@@ -34,6 +35,33 @@ class SubProcess:
         self.last_start_datetime: Optional[datetime.datetime] = None
         self.last_stop_datetime: Optional[datetime.datetime] = None
         self._watcher_task: Optional[asyncio.Task] = None
+
+        self.stdout_logfile = self._format_log_file(
+            self.config.stdout_logfile, "out.log"
+        )
+        self.stderr_logfile = self._format_log_file(
+            self.config.stderr_logfile, "err.log"
+        )
+
+    def _format_log_file(self, source_path: str, suffix: str) -> str:
+        """
+        非绝对路径放到配置路径文件夹去
+        且自动创建文件夹
+        """
+        if source_path is None:  # use system default path
+            source_path = os.path.join(
+                conf.log_save_dir, f"{self.name}", f"{self.name}_{suffix}"
+            )
+            os.makedirs(os.path.dirname(source_path), exist_ok=True)
+            return source_path
+
+        if not os.path.isabs(source_path):
+            # relative address . add to system log dir prefix
+            source_path = os.path.join(conf.log_save_dir, source_path)
+        if not os.path.exists(os.path.dirname(source_path)):
+            # check path exists
+            raise DictionaryNotExist(f"{os.path.dirname(source_path)} not exists")
+        return source_path
 
     def _prepare_start(self) -> Tuple[str, List[str], Dict[str, str]]:
         # directory
@@ -82,22 +110,28 @@ class SubProcess:
         self, process: asyncio.subprocess
     ) -> Tuple[asyncio.Task, asyncio.Task]:
         task_out = asyncio.create_task(
-            self._handel_log_stream(logging.INFO, process.stdout)
+            self._handle_log_stream(logging.INFO, process.stdout, self.stdout_logfile)
         )
         asyncio.ensure_future(task_out, loop=asyncio.get_running_loop())
         task_err = asyncio.create_task(
-            self._handel_log_stream(logging.ERROR, process.stderr)
+            self._handle_log_stream(logging.ERROR, process.stderr, self.stdout_logfile)
         )
         asyncio.ensure_future(task_err, loop=asyncio.get_running_loop())
         return task_out, task_err
 
-    async def _handel_log_stream(
-        self, level: int, stream: asyncio.streams.StreamReader
+    async def _handle_log_stream(
+        self,
+        level: int,
+        stream: asyncio.streams.StreamReader,
+        log_file_path: str,
     ) -> None:
+        log = logging.Logger("lk_flow__{}".format(self.name))
+        log.addHandler(logging.FileHandler(log_file_path, encoding="utf8"))
         while not stream.at_eof():
             data = await stream.readline()
             line = data.decode("ascii").rstrip()
             logger.log(level, line)
+            log.log(level, line)
 
     async def start(self) -> None:
         filename, argv, env = self._prepare_start()
