@@ -31,7 +31,6 @@ class ModAbstraction:
         """mod启动时 会执行的函数"""
 
     @classmethod
-    @abc.abstractmethod
     def teardown_mod(cls) -> None:
         """mod关闭时 会执行的函数"""
 

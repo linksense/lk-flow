@@ -29,10 +29,6 @@ class TimeTrigger(ModAbstraction):
         )
 
     @classmethod
-    def teardown_mod(cls) -> None:
-        pass
-
-    @classmethod
     def work(cls, event: Event) -> None:
         """检查进程是否在运行"""
         for task_name, next_datetime in cls.PROCESS_SCHEDULE.items():

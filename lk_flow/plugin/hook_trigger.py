@@ -32,10 +32,6 @@ class HookTrigger(ModAbstraction):
         context.event_bus.add_listener(EVENT.TASK_FINISH_ERROR, cls.task_hook_trigger)
 
     @classmethod
-    def teardown_mod(cls) -> None:
-        pass
-
-    @classmethod
     def add_task_hook(cls, trigger_events: str, trigger_task_name: str) -> True:
         """Task.trigger_events解析
 

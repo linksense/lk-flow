@@ -21,7 +21,24 @@ class TaskYamlLoader(ModAbstraction):
 
     @classmethod
     def setup_mod(cls, mod_config: Dict[str, Any]) -> None:
+        """
+        读取 yaml_path位置下的*.yaml文件，将task载入到系统
+
+        Args:
+            mod_config: task_yaml_dir 配置地址
+
+        Returns:
+            None
+        """
         yaml_path = mod_config.get("task_yaml_dir")
+
+        if not yaml_path:
+            logger.debug(f"{yaml_path} is None. continue")
+            return
+
+        if not os.path.exists(yaml_path):
+            logger.warning(f"{yaml_path} not exists")
+            return
 
         context = Context.get_instance()
         for file_name in os.listdir(yaml_path):
@@ -32,10 +49,6 @@ class TaskYamlLoader(ModAbstraction):
                 continue
             task = Task(**task_data)
             context.add_task(task)
-
-    @classmethod
-    def teardown_mod(cls) -> None:
-        pass
 
     @classmethod
     def dump_to_file(

@@ -66,6 +66,8 @@ class ControlCommands:
                 "last_start_datetime": item["last_start_datetime"],
             }
             ret.append(info)
+        if not ret:
+            return "No task in system"
         df = pandas.DataFrame(ret)
         df = df.set_index("name")
         return str(df)
@@ -88,7 +90,15 @@ class ControlCommands:
         return result
 
     def restart(self, task_name: str) -> str:
-        """重启task"""
+        """
+        重启task
+
+        Args:
+            task_name: task名称
+
+        Returns:
+            执行结果
+        """
         ret = self.stop(task_name)
         if ret != "stop":
             print(f"{task_name} is not running: {ret}")
@@ -98,8 +108,14 @@ class ControlCommands:
         """
         创建task
 
-        Example:
+        Examples:
             $ lk_flow create "{\"name\": \"t_date\", \"command\": \"date\", \"directory\": \".\"}"
+
+        Args:
+            task_json: Task json str 不输入则进入交互模式
+
+        Returns:
+            执行结果
         """
         from lk_flow.plugin.http_stuff._pydantic_input_helper import input_helper
 
@@ -128,7 +144,20 @@ class ControlCommands:
     def persist(
         self, task_name: str, save_type: str = "yaml", force: bool = False
     ) -> str:
-        """将task持久保存 sql|yaml"""
+        """
+        将task持久保存 sql|yaml
+
+        Examples:
+            $ lk_flow persist t_echo --save_type yaml --force 1
+
+        Args:
+            task_name: 任务名
+            save_type: 保存类型 yaml | sql
+            force: 覆盖已有任务
+
+        Returns:
+            执行结果
+        """
         if save_type == "yaml":
             url = f"{self._base_path}/tasks/{task_name}/preservation/yaml"
             data = {"force": force, "file_path": "."}

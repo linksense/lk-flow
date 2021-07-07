@@ -4,7 +4,11 @@
 # Copyright 2021 LinkSense Technology CO,. Ltd
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, PydanticValueError, validator
+
+
+class InvalidTriggerEvents(PydanticValueError):
+    msg_template = "must use '__' separate event and task_name"
 
 
 class Task(BaseModel):
@@ -25,3 +29,12 @@ class Task(BaseModel):
 
     def __init__(self, **data: Any):
         super().__init__(**data)
+
+    @validator("trigger_events")
+    def trigger_events_validator(cls, value: str) -> str:
+        if not value:
+            return value
+        for item in value.strip():
+            if "__" not in item:
+                raise InvalidTriggerEvents()
+        return value

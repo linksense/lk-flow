@@ -62,10 +62,6 @@ class TaskSQLOrmMod(ModAbstraction):
         cls.loading_task_from_mysql()
 
     @classmethod
-    def teardown_mod(cls) -> None:
-        pass
-
-    @classmethod
     def loading_task_from_mysql(cls) -> None:
         if not TaskOrm.__table__.exists(cls.engine):
             raise RuntimeError("请先初始化 lk_flow init")
