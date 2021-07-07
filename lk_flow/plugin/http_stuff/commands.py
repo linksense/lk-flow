@@ -114,13 +114,30 @@ class ControlCommands:
         else:
             obj = input_helper(Task)
             print(f"Task json: {obj.json()}")
-        url = f"{self._base_path}/process"
+        url = f"{self._base_path}/tasks"
         resp = requests.post(url, json=obj.dict())
         result: dict = resp.json()
         return result["message"]
 
     def delete(self, task_name: str) -> str:
         """删除task"""
-        url = f"{self._base_path}/process/{task_name}"
+        url = f"{self._base_path}/task/{task_name}"
         result: str = requests.delete(url).json()["message"]
         return result
+
+    def persist(
+        self, task_name: str, save_type: str = "yaml", force: bool = False
+    ) -> str:
+        """将task持久保存 sql|yaml"""
+        if save_type == "yaml":
+            url = f"{self._base_path}/tasks/{task_name}/preservation/yaml"
+            data = {"force": force, "file_path": "."}
+            result: str = requests.post(url, json=data).json()["message"]
+            return result
+        elif save_type == "sql":
+            url = f"{self._base_path}/tasks/{task_name}/preservation/sql"
+            data = {"force": force}
+            result: str = requests.post(url, json=data).json()["message"]
+            return result
+        else:
+            return "error save_type. please use it in [ yaml | sql ]"

@@ -77,10 +77,13 @@ class TaskSQLOrmMod(ModAbstraction):
         session.close()
 
     @classmethod
-    def create_task_orm(cls, task: Task) -> None:
+    def create_task_orm(cls, task: Task, force: bool = False) -> None:
         """将task存储到数据库中"""
         session = cls.db_session()
-        if session.query(TaskOrm).filter_by(name=task.name).first():
+        _obj = session.query(TaskOrm).filter_by(name=task.name).first()
+        if _obj and force:  # 覆盖文件
+            session.query(TaskOrm).filter_by(name=task.name).delete()
+        elif _obj and not force:  # 重复名称 报错
             session.close()
             raise ValueError(f"Task name is duplicated {task.name}")
         obj = TaskOrm(**task.dict())

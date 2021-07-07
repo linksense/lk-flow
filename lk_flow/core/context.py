@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Dict, ItemsView, Optional, Type
 from lk_flow.config import Config
 from lk_flow.core.event import EVENT, Event, EventBus
 from lk_flow.env import logger
-from lk_flow.errors import DuplicateModError, DuplicateTaskNameError
+from lk_flow.errors import DuplicateModError, DuplicateTaskNameError, ModNotFoundError
 from lk_flow.models import SubProcess, Task
 
 if TYPE_CHECKING:
@@ -66,6 +66,8 @@ class Context:
         self._mod_map[mod_name] = mod
 
     def get_mod(self, mod_name: str) -> Type[Type["ModAbstraction"]]:
+        if mod_name not in self._mod_map.keys():
+            raise ModNotFoundError(f"{mod_name} not found")
         return self._mod_map[mod_name]
 
     # Process

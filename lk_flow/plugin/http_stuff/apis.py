@@ -8,7 +8,7 @@ from fastapi import APIRouter, Body, FastAPI, Request
 from starlette.responses import JSONResponse
 
 from lk_flow.core import EVENT, Context, Event
-from lk_flow.errors import _BaseError
+from lk_flow.errors import ModNotFoundError, _BaseError
 from lk_flow.models import Task
 from lk_flow.plugin.http_stuff.models import (
     CommonResponse,
@@ -60,7 +60,7 @@ async def task_stop(task_name: str) -> ProcessResponse:
     return ProcessResponse(data=subprocess)
 
 
-@api_router.post("/process", response_model=ProcessResponse)
+@api_router.post("/tasks", response_model=ProcessResponse)
 async def task_create(task: Task) -> ProcessResponse:
     context = Context.get_instance()
     item = context.add_task(task)
@@ -69,7 +69,7 @@ async def task_create(task: Task) -> ProcessResponse:
     return ProcessResponse(data=SubProcessModel.from_orm(item))
 
 
-@api_router.delete("/process/{task_name}", response_model=CommonResponse)
+@api_router.delete("/tasks/{task_name}", response_model=CommonResponse)
 async def task_delete(task_name: str) -> CommonResponse:
     context = Context.get_instance()
     context.stop_task(task_name)
@@ -77,7 +77,22 @@ async def task_delete(task_name: str) -> CommonResponse:
     return CommonResponse()
 
 
-@api_router.post("/tasks/{task_name}", response_model=CommonResponse)
+@api_router.post("/tasks/{task_name}/preservation/sql", response_model=CommonResponse)
+async def task_save_to_sql(task_name: str, force: bool = Body(True)) -> CommonResponse:
+    """将task保存至yaml"""
+    from lk_flow.plugin.task_sql_orm import TaskSQLOrmMod
+
+    context = Context.get_instance()
+    task = context.get_process(task_name).config
+    try:
+        mod: TaskSQLOrmMod = context.get_mod(TaskSQLOrmMod.__name__)
+    except ModNotFoundError:
+        return CommonResponse(code=0, message=f"{TaskSQLOrmMod.__name__} not enable")
+    mod.create_task_orm(task=task, force=force)
+    return CommonResponse(message="ok")
+
+
+@api_router.post("/tasks/{task_name}/preservation/yaml", response_model=CommonResponse)
 async def task_save_to_yaml(
     task_name: str, file_path: str = Body("./yaml"), force: bool = Body(True)
 ) -> CommonResponse:
@@ -87,9 +102,9 @@ async def task_save_to_yaml(
     context = Context.get_instance()
     task = context.get_process(task_name).config
     try:
-        mod: TaskYamlLoader = context.get_mod("TaskYamlLoader")
-    except KeyError:
-        return CommonResponse(code=0, message="TaskYamlLoader not enable")
+        mod: TaskYamlLoader = context.get_mod(TaskYamlLoader.__name__)
+    except ModNotFoundError:
+        return CommonResponse(code=0, message=f"{TaskYamlLoader.__name__} not enable")
     mod.dump_to_file(task=task, file_path=file_path, force=force)
     return CommonResponse(message="ok")
 

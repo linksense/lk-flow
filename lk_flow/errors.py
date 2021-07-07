@@ -17,6 +17,10 @@ class RunError(_BaseError):
     """启动时报错"""
 
 
+class ModNotFoundError(RunError):
+    """Mod没有找到"""
+
+
 class RunningError(_BaseError):
     """运行错误"""
 
