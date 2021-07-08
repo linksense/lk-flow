@@ -8,15 +8,16 @@ from typing import Any, Dict
 import yaml
 from lk_flow.core import Context, ModAbstraction
 from lk_flow.env import logger
+from lk_flow.errors import DirNotFoundError, YamlFileExistsError
 from lk_flow.models import Task
 
 
-class TaskYamlLoader(ModAbstraction):
+class YamlLoader(ModAbstraction):
     @classmethod
     def init_mod(cls, mod_config: Dict[str, Any]) -> None:
         """初始化mod 无配置文件夹自动创建"""
         yaml_path = mod_config.get("task_yaml_dir")
-        if not os.path.exists(yaml_path):
+        if yaml_path and not os.path.exists(yaml_path):
             os.mkdir(yaml_path)
 
     @classmethod
@@ -55,12 +56,13 @@ class TaskYamlLoader(ModAbstraction):
         cls, task: Task, file_path: str = "./yaml", force: bool = True
     ) -> None:
         """将task保存至yaml"""
-        if not force and (
-            not os.path.exists(file_path) or not os.path.isdir(file_path)
-        ):
-            raise FileNotFoundError(f"dir {file_path} exists")
+        if not os.path.exists(file_path) or not os.path.isdir(file_path):
+            raise DirNotFoundError(f"dir {file_path} not exists")
+        path = os.path.join(file_path, f"{task.name}.yaml")
+
+        if not force and os.path.exists(path):
+            raise YamlFileExistsError(f"{path} exists")
         yaml_str = yaml.dump(task.dict())
-        path = os.path.join(file_path, f"{file_path}.yaml")
         with open(path, "w", encoding="utf8") as f:
             f.write(yaml_str)
         return

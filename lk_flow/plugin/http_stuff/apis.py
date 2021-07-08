@@ -80,14 +80,14 @@ async def task_delete(task_name: str) -> CommonResponse:
 @api_router.post("/tasks/{task_name}/preservation/sql", response_model=CommonResponse)
 async def task_save_to_sql(task_name: str, force: bool = Body(True)) -> CommonResponse:
     """将task保存至yaml"""
-    from lk_flow.plugin.task_sql_orm import TaskSQLOrmMod
+    from lk_flow.plugin.sql_orm import SQLOrmMod
 
     context = Context.get_instance()
     task = context.get_process(task_name).config
     try:
-        mod: TaskSQLOrmMod = context.get_mod(TaskSQLOrmMod.__name__)
+        mod: SQLOrmMod = context.get_mod(SQLOrmMod.__name__)
     except ModNotFoundError:
-        return CommonResponse(code=0, message=f"{TaskSQLOrmMod.__name__} not enable")
+        return CommonResponse(code=0, message=f"{SQLOrmMod.__name__} not enable")
     mod.create_task_orm(task=task, force=force)
     return CommonResponse(message="ok")
 

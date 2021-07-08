@@ -7,7 +7,7 @@
 
 mod_config:
 
-  TaskSQLOrmMod:
+  SQLOrmMod:
     enable: true
     SQLALCHEMY_DATABASE_URI: sqlite:///lk_flow.db
 
@@ -17,7 +17,7 @@ mod_config:
   HookTrigger:
     enable: true
 
-  TaskYamlLoader:
+  YamlLoader:
     enable: true
     task_yaml_dir: ./yaml
 

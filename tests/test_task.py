@@ -8,7 +8,7 @@ import sys
 import pytest
 
 from lk_flow.errors import RunError
-from lk_flow.models.subprocess import SubProcess
+from lk_flow.models.subprocess import ProcessStatus, SubProcess
 from lk_flow.models.tasks import Task
 
 
@@ -70,7 +70,7 @@ class TestTask:
         )
         await p_manger.start()
         await asyncio.sleep(1)  # wait for start
-        assert p_manger.pid is None
+        assert p_manger.state is ProcessStatus.exit_error
 
         p_manger = SubProcess(
             Task(

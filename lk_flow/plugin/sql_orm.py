@@ -32,7 +32,7 @@ class TaskOrm(Model):
     extra_json = Column(String(), default="{}")
 
 
-class TaskSQLOrmMod(ModAbstraction):
+class SQLOrmMod(ModAbstraction):
     engine: Engine
     db_session: sessionmaker
     context: Context

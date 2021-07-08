@@ -7,18 +7,18 @@ import pytest
 from lk_flow.config import conf
 from lk_flow.core import Context, setup_mod
 from lk_flow.models.tasks import Task
-from lk_flow.plugin.task_sql_orm import TaskSQLOrmMod
+from lk_flow.plugin.sql_orm import SQLOrmMod
 
 
 class TestTrigger:
-    mod: TaskSQLOrmMod
+    mod: SQLOrmMod
 
     @classmethod
     def setup_class(cls):
         cls.context = Context(config=conf)
         cls.context.config.mod_config["HttpControlServer"] = {"enable": False}
         setup_mod(cls.context)
-        cls.mod: TaskSQLOrmMod = cls.context.get_mod("TaskSQLOrmMod")
+        cls.mod: SQLOrmMod = cls.context.get_mod(SQLOrmMod.__name__)
 
     def test_save_task(self):
         make_echo_task = Task(

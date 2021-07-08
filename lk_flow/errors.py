@@ -37,5 +37,13 @@ class DuplicateModError(LkFlowBaseError, KeyError):
     """mod名称重复"""
 
 
+class DirNotFoundError(LkFlowBaseError, FileNotFoundError):
+    """文件夹未找到"""
+
+
+class YamlFileExistsError(LkFlowBaseError, FileExistsError):
+    """文件已存在"""
+
+
 class DuplicateTaskNameError(LkFlowBaseError, KeyError):
     """mod名称重复"""

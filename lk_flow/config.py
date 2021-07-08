@@ -18,17 +18,6 @@ class Config:
     )
     LOG_LEVEL = "DEBUG"
 
-    # import os ; print(os.urandom(24))
-    SECRET_KEY = b""
-
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
-    SQLALCHEMY_ECHO = False
-    SQLALCHEMY_ENGINE_OPTIONS = {"pool_recycle": 1800}
-
-    SQLALCHEMY_DATABASE_URI = "sqlite:///{}".format(
-        os.path.join(os.path.abspath("."), "lk_flow.db")
-    )
-
     log_save_dir = "/var/log/lk_flow"
     sentry_dns = None
     # 配置文件

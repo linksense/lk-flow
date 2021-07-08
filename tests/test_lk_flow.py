@@ -57,6 +57,6 @@ class TestLkFlow:
         if not os.path.exists(file_name):
             created_config = True
             open(file_name, "w", encoding="utf8").write("A: a")
-        assert Config().SECRET_KEY == conf.SECRET_KEY
+        assert Config().log_save_dir == conf.log_save_dir
         if created_config:
             os.remove(file_name)
