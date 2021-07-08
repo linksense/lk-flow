@@ -44,7 +44,7 @@ class Config:
         """
         >>> os.environ["lk_flow_config_path"] = os.path.abspath("lk_flow_config.yaml")
         >>> Config()
-        read config.yaml from...
+        <lk_flow.config.Config object at...
         """
         import logging
 
@@ -61,7 +61,7 @@ class Config:
             logger = logging.getLogger("lk_flow")
             logger.setLevel(self.LOG_LEVEL)
             logger.info("read {} values:".format(config_path))
-            logger.info("config:", self.__dict__, "\nmod_config:")
+            logger.info(f"config:{self.__dict__}\nmod_config:")
             for _mod_name, _mod_config in mod_config.items():
                 self.mod_config[_mod_name] = _mod_config
                 logger.info(f"  [{_mod_name}]:{_mod_config}")

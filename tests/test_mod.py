@@ -2,11 +2,8 @@
 # encoding: utf-8
 # Created by zza on 2021/6/24 14:40
 # Copyright 2021 LinkSense Technology CO,. Ltd
-import gc
 import os.path
 from typing import Any, Dict
-
-import pytest
 
 from lk_flow.config import conf
 from lk_flow.core import Context
@@ -58,6 +55,10 @@ class TestMod:
             "ModC": ModC,
         }
 
+        from lk_flow.core.mod import _sub_class_map
+
+        _sub_class_map.update(cls.mod_map)
+
     def setup_method(self):
         self.context = Context(config=conf)
         self.context.config.mod_config["ModC"] = {"enable": False}
@@ -71,21 +72,6 @@ class TestMod:
         teardown_mod(self.context)
         out, err = capsys.readouterr()
         assert "teardown_mod ModB" in out
-
-    def test_error_name(self, capsys):
-        class ModB(self.mod_map["ModA"]):
-            """A mistake produces The baby Class"""
-
-        with pytest.raises(KeyError):
-            setup_mod(self.context)
-
-        del ModB
-        gc.collect()
-
-        setup_mod(self.context)
-
-        out, err = capsys.readouterr()
-        assert "setup_mod ModB" in out
 
     def test_init(self, capsys):
         mod_init(self.context)

@@ -5,7 +5,7 @@
 from lk_flow.env import logger
 
 
-class _BaseError(Exception):
+class LkFlowBaseError(Exception):
     """flow base error 作为所有flow_error的基类"""
 
     def __init__(self, message: str):
@@ -13,11 +13,11 @@ class _BaseError(Exception):
         self.message = message
 
 
-class RunError(_BaseError):
+class RunError(LkFlowBaseError):
     """启动时报错"""
 
 
-class DictionaryNotExist(_BaseError):
+class DictionaryNotExist(LkFlowBaseError):
     """文件夹不存在"""
 
 
@@ -25,17 +25,17 @@ class ModNotFoundError(RunError):
     """Mod没有找到"""
 
 
-class RunningError(_BaseError):
+class RunningError(LkFlowBaseError):
     """运行错误"""
 
 
-class ProcessRuntimeError(_BaseError):
+class ProcessRuntimeError(LkFlowBaseError):
     """子进程运行错误"""
 
 
-class DuplicateModError(_BaseError, KeyError):
+class DuplicateModError(LkFlowBaseError, KeyError):
     """mod名称重复"""
 
 
-class DuplicateTaskNameError(_BaseError, KeyError):
+class DuplicateTaskNameError(LkFlowBaseError, KeyError):
     """mod名称重复"""

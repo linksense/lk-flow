@@ -77,8 +77,12 @@ class SubProcess:
         # command
         if self.config.command is None:
             raise RunError("No command for {}".format(self.config))
-        filename, *argv = self.config.command.split()
-        self._check_filename_exist(filename)
+        if " " in self.config.command:
+            filename, *argv = self.config.command.split()
+        else:
+            filename = self.config.command
+            argv = []
+        filename = self._check_filename_exist(filename)
         # exit_code
         self.exit_code = None
         return filename, argv, env
@@ -97,13 +101,21 @@ class SubProcess:
         env.update(self.config.environment)
         return env
 
-    def _check_filename_exist(self, filename: str) -> None:
+    def _check_filename_exist(self, filename: str) -> str:
         if "/" in filename:
             try:
                 os.stat(filename)
+                return filename
             except FileNotFoundError:
                 raise RunError(f"未找到命令{self.config.command}")
         else:
+            for _dir in ["/bin", "/usr/bin", "/usr/local/bin"]:
+                _path = os.path.join(_dir, filename)
+                try:
+                    os.stat(_path)
+                    return _path
+                except FileNotFoundError:
+                    pass
             raise RunError("命令必须包含路径符'/'")
 
     async def _set_logger(

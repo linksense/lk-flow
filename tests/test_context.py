@@ -5,8 +5,6 @@
 
 from typing import Any, Dict
 
-import pytest
-
 from lk_flow.__main__ import run
 from lk_flow.config import conf
 from lk_flow.core import EVENT, Context, Event, ModAbstraction
@@ -17,7 +15,6 @@ class TestContext:
     def setup_class(cls):
         conf.mod_config["HttpControlServer"] = {"enable": False}
 
-    @pytest.mark.timeout(5)
     def test_run(self):
         assassins_listened = []
 
@@ -40,11 +37,13 @@ class TestContext:
                     return True
 
         from lk_flow.core.mod import _sub_class_map
+
         _sub_class_map[Assassins.__name__] = Assassins
         run()
         assert len(assassins_listened) > 2
 
-    @pytest.mark.timeout(5)
+        del _sub_class_map[Assassins.__name__]
+
     def test_catch_error(self):
         class Terrorists(ModAbstraction):
             @classmethod
@@ -60,7 +59,11 @@ class TestContext:
             def run(cls, event):
                 raise RuntimeError("Explosions are art")
 
+        from lk_flow.core.mod import _sub_class_map
+
+        _sub_class_map[Terrorists.__name__] = Terrorists
         run()
+        del _sub_class_map[Terrorists.__name__]
         del Terrorists
         import gc
 

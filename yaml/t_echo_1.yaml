@@ -1,4 +1,4 @@
-name: "t_echo"
+name: "t_echo_1"
 command: /usr/bin/echo "this is a echo message"
 directory: "."
 auto_restart: false

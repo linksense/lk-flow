@@ -8,7 +8,7 @@ from fastapi import APIRouter, Body, FastAPI, Request
 from starlette.responses import JSONResponse
 
 from lk_flow.core import EVENT, Context, Event
-from lk_flow.errors import ModNotFoundError, _BaseError
+from lk_flow.errors import LkFlowBaseError, ModNotFoundError
 from lk_flow.models import Task
 from lk_flow.plugin.http_stuff.models import (
     CommonResponse,
@@ -20,7 +20,7 @@ from lk_flow.plugin.http_stuff.models import (
 api_router = APIRouter()
 
 
-async def base_error_handler(request: Request, exc: _BaseError) -> JSONResponse:
+async def base_error_handler(request: Request, exc: LkFlowBaseError) -> JSONResponse:
     return JSONResponse(status_code=200, content={"message": exc.message, "code": -1})
 
 
@@ -118,7 +118,7 @@ async def start_server(
     """启动服务"""
     app = FastAPI()
     app.include_router(api_router, prefix=api_path)
-    app.add_exception_handler(_BaseError, base_error_handler)
+    app.add_exception_handler(LkFlowBaseError, base_error_handler)
     config = uvicorn.Config(
         app, host=host, port=port, log_level=log_level, reload=False
     )

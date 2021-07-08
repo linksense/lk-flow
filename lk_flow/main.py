@@ -3,8 +3,6 @@
 # Created by zza on 2021/6/24 10:05
 # Copyright 2021 LinkSense Technology CO,. Ltd
 """ 总启动流程文件 """
-import asyncio
-import datetime
 import logging
 import os
 import traceback
@@ -44,11 +42,7 @@ async def start_server() -> None:
     # setup server
     context.event_bus.publish_event(Event(EVENT.SYSTEM_SETUP))
     try:
-        while context.loop_enable:
-            context.event_bus.publish_event(
-                Event(EVENT.HEARTBEAT, now=datetime.datetime.now())
-            )
-            await asyncio.sleep(context.sleep_time)
+        await context.entry_loop()
     except Exception as err:
         logger.error(f"系统级错误 {err}")
         logger.error(traceback.format_exc())

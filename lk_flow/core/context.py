@@ -5,12 +5,19 @@
 from __future__ import annotations
 
 import asyncio
+import datetime
+import traceback
 from typing import TYPE_CHECKING, Dict, ItemsView, Optional, Type
 
 from lk_flow.config import Config
 from lk_flow.core.event import EVENT, Event, EventBus
 from lk_flow.env import logger
-from lk_flow.errors import DuplicateModError, DuplicateTaskNameError, ModNotFoundError
+from lk_flow.errors import (
+    DuplicateModError,
+    DuplicateTaskNameError,
+    LkFlowBaseError,
+    ModNotFoundError,
+)
 from lk_flow.models import SubProcess, Task
 
 if TYPE_CHECKING:
@@ -185,3 +192,15 @@ class Context:
                 continue
             self._PROCESS_RUNNING.pop(name)
             self._PROCESS_STOPPED[name] = subprocess
+
+    async def entry_loop(self) -> None:
+        while self.loop_enable:
+            try:
+                self.event_bus.publish_event(
+                    Event(EVENT.HEARTBEAT, now=datetime.datetime.now())
+                )
+            except LkFlowBaseError as err:
+                logger.error(err.message)
+                logger.error(traceback.format_exc())
+            await asyncio.sleep(self.sleep_time)
+        return

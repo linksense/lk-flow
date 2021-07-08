@@ -1,5 +1,5 @@
 name: "t_http_server"
-command: "/root/miniconda3/envs/lk_flow/bin/python3 -m http.server 8005"
+command: "/usr/bin/python3 -m http.server 8005"
 directory: "."
 auto_restart: false
 restart_retries: 0
