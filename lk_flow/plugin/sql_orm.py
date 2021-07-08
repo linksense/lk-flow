@@ -10,6 +10,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 from lk_flow.core import Context, ModAbstraction
 from lk_flow.env import logger
+from lk_flow.errors import RunError
 from lk_flow.models.tasks import Task
 
 Model = declarative_base()
@@ -66,7 +67,7 @@ class SQLOrmMod(ModAbstraction):
     @classmethod
     def loading_task_from_mysql(cls) -> None:
         if not TaskOrm.__table__.exists(cls.engine):
-            raise RuntimeError("请先初始化 lk_flow init")
+            raise RunError("请先初始化 lk_flow init")
         session = cls.db_session()
         task_orm = session.query(TaskOrm).all()
         tasks = [Task.from_orm(_task) for _task in task_orm]

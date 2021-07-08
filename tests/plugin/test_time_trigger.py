@@ -8,13 +8,10 @@ from lk_flow.config import conf
 from lk_flow.core import EVENT, Context, Event
 from lk_flow.models import Task
 from lk_flow.plugin.time_trigger import TimeTrigger
+from tests.test_lk_flow import TestLkFlow
 
 
-class TestTimeTrigger:
-    def setup_method(self):
-        del Context._env
-        Context._env = None
-
+class TestTimeTrigger(TestLkFlow):
     def test_work(self):
         context = Context(conf)
         task = Task(

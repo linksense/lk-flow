@@ -13,14 +13,11 @@ from lk_flow.core import Context
 from lk_flow.errors import DirNotFoundError, YamlFileExistsError
 from lk_flow.models import Task
 from lk_flow.plugin.yaml_loader import YamlLoader
+from tests.test_lk_flow import TestLkFlow
 
 
-class TestYamlLoader:
+class TestYamlLoader(TestLkFlow):
     dir_name = "./tmp_task_yaml_dir"
-
-    def setup_method(self):
-        del Context._env
-        Context._env = None
 
     @classmethod
     def teardown_class(cls):

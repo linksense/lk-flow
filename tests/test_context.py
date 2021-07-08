@@ -68,3 +68,18 @@ class TestContext:
         import gc
 
         gc.collect()
+
+    def test_config(self):
+        import os
+
+        from lk_flow import Config, conf
+
+        # read config.yaml
+        file_name = "config.yaml"
+        created_config = False
+        if not os.path.exists(file_name):
+            created_config = True
+            open(file_name, "w", encoding="utf8").write("A: a")
+        assert Config().log_save_dir == conf.log_save_dir
+        if created_config:
+            os.remove(file_name)

@@ -11,6 +11,7 @@ Tests for `lk_flow` module.
 import pytest
 
 import lk_flow
+from lk_flow import Context
 
 
 @pytest.fixture
@@ -33,7 +34,8 @@ class TestLkFlow:
         pass
 
     def setup_method(self):
-        pass
+        del Context._env
+        Context._env = None
 
     def teardown_method(self):
         pass
@@ -45,18 +47,3 @@ class TestLkFlow:
         # assert cost time
         benchmark(__main__.version)
         assert benchmark.stats.stats.max < 0.01
-
-    def test_config(self):
-        import os
-
-        from lk_flow.config import Config, conf
-
-        # read config.yaml
-        file_name = "config.yaml"
-        created_config = False
-        if not os.path.exists(file_name):
-            created_config = True
-            open(file_name, "w", encoding="utf8").write("A: a")
-        assert Config().log_save_dir == conf.log_save_dir
-        if created_config:
-            os.remove(file_name)
