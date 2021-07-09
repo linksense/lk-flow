@@ -57,7 +57,7 @@ def mod_init(context: Context) -> None:
 def setup_mod(context: Context) -> None:
     """setup all mod"""
     for name, mod in _sub_class_map.items():
-        mod_config: dict = context.config.mod_config[name]
+        mod_config: dict = context.config.mod_config.get(name, {})
         if not mod_config.get("enable", True):
             logger.info(f"[{name} mod] not enabled. pass.")
             continue

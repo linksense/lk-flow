@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Created by zza on 2021/7/1 16:28
 # Copyright 2021 LinkSense Technology CO,. Ltd
-
+import shutil
 from typing import Any, Dict
 
 from lk_flow.__main__ import run
@@ -14,6 +14,10 @@ class TestContext:
     @classmethod
     def setup_class(cls):
         conf.mod_config["HttpControlServer"] = {"enable": False}
+
+    @classmethod
+    def teardown_class(cls):
+        conf.mod_config["HttpControlServer"] = {}
 
     def test_run(self):
         assassins_listened = []
@@ -83,3 +87,8 @@ class TestContext:
         assert Config().log_save_dir == conf.log_save_dir
         if created_config:
             os.remove(file_name)
+
+    def test_log_dir(self):
+        from lk_flow.main import _make_sys_log_file
+        shutil.rmtree(conf.log_save_dir)
+        _make_sys_log_file()

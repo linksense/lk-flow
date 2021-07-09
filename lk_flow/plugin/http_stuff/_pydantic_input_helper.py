@@ -26,7 +26,7 @@ def _deal_field(field: pydantic.fields.ModelField) -> Any:
             print(f"Error: {value} {err.msg_template}")
 
 
-def input_helper(class_type: Type[BaseModel] = Task) -> BaseModel:
+def input_helper(class_type: Type[BaseModel] = Task) -> Type[Type[BaseModel]]:
     """将pydantic.Model通过交互方式创建"""
     values = {}
     for name, field in class_type.__fields__.items():

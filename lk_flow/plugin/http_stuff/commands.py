@@ -2,14 +2,30 @@
 # encoding: utf-8
 # Created by zza on 2021/7/5 14:25
 # Copyright 2021 LinkSense Technology CO,. Ltd
+import asyncio
 import functools
 import json
 from typing import Callable, Dict, List
 
 import pandas
 import requests
+import requests_async
 
 from lk_flow.models import Task
+
+
+def _async_request(method: str, url: str, **kwargs) -> requests_async.models.Response:
+    """异步request"""
+
+    async def _do_async_request() -> requests_async.models.Response:
+        response = await requests_async.request(method, url, timeout=1, **kwargs)
+        return response
+
+    loop = asyncio.get_event_loop()
+    result: requests_async.models.Response = loop.run_until_complete(
+        _do_async_request()
+    )
+    return result
 
 
 class ControlCommands:
@@ -31,17 +47,32 @@ class ControlCommands:
             return False
         return True
 
-    def get_all_commands(self) -> Dict[str, Callable]:
+    def get_all_commands(self, use_async_requests: bool = True) -> Dict[str, Callable]:
+        """
+        获取所有系统命令
+
+        Args:
+            use_async_requests:
+                默认使用异步requests
+                使用会更改requests.request 算污染函数库了 命令模式下没问题
+
+        Returns:
+
+        """
         ret = dict()
+        # 更换为异步请求
+        if use_async_requests:
+            requests.api.request = _async_request
+        # 获取命令列表
         for attr_name in dir(self):
             if attr_name.startswith("_") or attr_name in self._not_commands:
                 continue
             obj = getattr(self, attr_name)
             if callable(obj):
                 ret[attr_name] = obj
-
+        # 服务未启动时打印未启动提示
         if not self._url_is_listening():
-
+            # 未启动提示装饰器
             def wrap_echo_message(func: Callable) -> Callable:
                 @functools.wraps(func)
                 def echo_message() -> str:
@@ -49,6 +80,7 @@ class ControlCommands:
 
                 return echo_message
 
+            # 替换
             for _func_name, _func in ret.items():
                 ret[_func_name] = wrap_echo_message(_func)
         return ret
@@ -56,7 +88,6 @@ class ControlCommands:
     def status(self) -> str:
         """系统内task信息"""
         all_result: dict = requests.get(f"{self._base_path}/").json()["data"]
-
         ret = []
         for task_name, item in all_result.items():
             info = {
@@ -127,7 +158,7 @@ class ControlCommands:
                     obj = Task(**json.loads(task_json))
                 except json.decoder.JSONDecodeError as err:
                     return f"json 解析错误:{err}"
-        else:
+        else:  # pragma: no cover
             obj = input_helper(Task)
             print(f"Task json: {obj.json()}")
         url = f"{self._base_path}/tasks"
@@ -137,7 +168,7 @@ class ControlCommands:
 
     def delete(self, task_name: str) -> str:
         """删除task"""
-        url = f"{self._base_path}/task/{task_name}"
+        url = f"{self._base_path}/tasks/{task_name}"
         result: str = requests.delete(url).json()["message"]
         return result
 
@@ -161,12 +192,11 @@ class ControlCommands:
         if save_type == "yaml":
             url = f"{self._base_path}/tasks/{task_name}/preservation/yaml"
             data = {"force": force, "file_path": "."}
-            result: str = requests.post(url, json=data).json()["message"]
-            return result
         elif save_type == "sql":
             url = f"{self._base_path}/tasks/{task_name}/preservation/sql"
             data = {"force": force}
-            result: str = requests.post(url, json=data).json()["message"]
-            return result
         else:
             return "error save_type. please use it in [ yaml | sql ]"
+
+        result: str = requests.post(url, json=data).json()["message"]
+        return result

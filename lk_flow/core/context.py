@@ -17,6 +17,7 @@ from lk_flow.errors import (
     DuplicateTaskNameError,
     LkFlowBaseError,
     ModNotFoundError,
+    TaskNotFoundError,
 )
 from lk_flow.models import SubProcess, Task
 
@@ -80,6 +81,8 @@ class Context:
     # Process
 
     def get_process(self, task_name: str) -> SubProcess:
+        if task_name not in self._PROCESS_ALL:
+            raise TaskNotFoundError(f"Task {task_name} not found")
         return self._PROCESS_ALL[task_name]
 
     # Process Set

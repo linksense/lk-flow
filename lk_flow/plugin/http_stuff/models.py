@@ -38,3 +38,12 @@ class ProcessResponse(CommonResponse):
 
 class ProcessMapResponse(CommonResponse):
     data: Optional[Dict[str, SubProcessModel]] = None
+
+
+class SaveToSqlRequest(BaseModel):
+    force: bool = True
+
+
+class SaveToYamlRequest(BaseModel):
+    force: bool = True
+    file_path: str = "./yaml"

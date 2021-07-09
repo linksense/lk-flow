@@ -21,6 +21,10 @@ class DictionaryNotExist(LkFlowBaseError):
     """文件夹不存在"""
 
 
+class TaskNotFoundError(LkFlowBaseError):
+    """任务不存在"""
+
+
 class ModNotFoundError(RunError):
     """Mod没有找到"""
 

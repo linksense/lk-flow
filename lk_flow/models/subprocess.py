@@ -19,7 +19,7 @@ class ProcessStatus(str, Enum):
     sleeping = "sleeping"
     exit_normal = "exit_normal"
     exit_error = "exit_error"
-    stop = "stop"
+    stopped = "stopped"
     running = "running"
 
 
@@ -165,8 +165,11 @@ class SubProcess:
         self.pid = self.process.pid
 
         task_out, task_err = await self._set_logger(self.process)
+        asyncio_task = asyncio.create_task(
+            self._process_watcher(process, task_out, task_err)
+        )
         self._watcher_task = asyncio.ensure_future(
-            asyncio.create_task(self._process_watcher(process, task_out, task_err)),
+            asyncio_task,
             loop=asyncio.get_running_loop(),
         )
 
@@ -210,7 +213,7 @@ class SubProcess:
             self.last_stop_datetime = datetime.datetime.now()
             self._watcher_task.cancel()
             self.pid = None
-            self.state = ProcessStatus.stop
+            self.state = ProcessStatus.stopped
 
     async def restart(self) -> None:
         await self.stop()

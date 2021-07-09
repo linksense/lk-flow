@@ -2,8 +2,9 @@
 # encoding: utf-8
 # Created by zza on 2021/6/24 14:40
 # Copyright 2021 LinkSense Technology CO,. Ltd
-import os.path
 from typing import Any, Dict
+
+import pytest
 
 from lk_flow.config import conf
 from lk_flow.core import Context
@@ -60,11 +61,16 @@ class TestMod:
         _sub_class_map.update(cls.mod_map)
 
     def setup_method(self):
+        Context._env = None
         self.context = Context(config=conf)
         self.context.config.mod_config["ModC"] = {"enable": False}
-        self.context.config.mod_config["HttpControlServer"] = {"enable": False}
 
-    def test_setup_and_teardown_mod(self, capsys):
+    @pytest.mark.asyncio
+    async def test_setup_and_teardown_mod(self, capsys):
+        loading_plugin(None)
+        mod_init(self.context)
+        Context._env = None
+        self.context = Context(config=conf)
         setup_mod(self.context)
         out, err = capsys.readouterr()
         assert "setup_mod ModB" in out
@@ -77,9 +83,3 @@ class TestMod:
         mod_init(self.context)
         out, err = capsys.readouterr()
         assert "init_mod ModA" in out
-
-    def test_loading_plugin(self):
-        from lk_flow.plugin import time_trigger
-
-        mod_dir = os.path.dirname(time_trigger.__file__)
-        loading_plugin(mod_dir)

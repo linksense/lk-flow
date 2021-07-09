@@ -5,6 +5,7 @@
 import asyncio
 from typing import Any, Callable, Dict, Tuple
 
+from lk_flow import conf
 from lk_flow.core import ModAbstraction
 from lk_flow.env import logger
 
@@ -30,7 +31,7 @@ class HttpControlServer(ModAbstraction):
 
         # get config
         host, port = cls._get_host_port(mod_config)
-        log_level = mod_config.get("log_level", "info")
+        log_level = mod_config.get("log_level", conf.LOG_LEVEL)
         # start FastAPI app
         loop = asyncio.get_event_loop()
         uv_task = start_server(

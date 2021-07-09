@@ -2,18 +2,22 @@
 # encoding: utf-8
 # Created by zza on 2021/7/1 14:27
 # Copyright 2021 LinkSense Technology CO,. Ltd
+import traceback
 
 import uvicorn
-from fastapi import APIRouter, Body, FastAPI, Request
+from fastapi import APIRouter, FastAPI, Request
 from starlette.responses import JSONResponse
 
+from lk_flow import logger
 from lk_flow.core import EVENT, Context, Event
-from lk_flow.errors import LkFlowBaseError, ModNotFoundError
+from lk_flow.errors import LkFlowBaseError
 from lk_flow.models import Task
 from lk_flow.plugin.http_stuff.models import (
     CommonResponse,
     ProcessMapResponse,
     ProcessResponse,
+    SaveToSqlRequest,
+    SaveToYamlRequest,
     SubProcessModel,
 )
 
@@ -21,6 +25,7 @@ api_router = APIRouter()
 
 
 async def base_error_handler(request: Request, exc: LkFlowBaseError) -> JSONResponse:
+    logger.error(traceback.format_exc())
     return JSONResponse(status_code=200, content={"message": exc.message, "code": -1})
 
 
@@ -64,8 +69,6 @@ async def task_stop(task_name: str) -> ProcessResponse:
 async def task_create(task: Task) -> ProcessResponse:
     context = Context.get_instance()
     item = context.add_task(task)
-    if not item:
-        return ProcessResponse(code=-1, message=f"{task.name} is already exists")
     return ProcessResponse(data=SubProcessModel.from_orm(item))
 
 
@@ -78,34 +81,34 @@ async def task_delete(task_name: str) -> CommonResponse:
 
 
 @api_router.post("/tasks/{task_name}/preservation/sql", response_model=CommonResponse)
-async def task_save_to_sql(task_name: str, force: bool = Body(True)) -> CommonResponse:
+async def task_save_to_sql(
+    task_name: str, save_to_sql_request: SaveToSqlRequest = SaveToSqlRequest()
+) -> CommonResponse:
     """将task保存至yaml"""
     from lk_flow.plugin.sql_orm import SQLOrmMod
 
     context = Context.get_instance()
     task = context.get_process(task_name).config
-    try:
-        mod: SQLOrmMod = context.get_mod(SQLOrmMod.__name__)
-    except ModNotFoundError:
-        return CommonResponse(code=0, message=f"{SQLOrmMod.__name__} not enable")
-    mod.create_task_orm(task=task, force=force)
+    mod: SQLOrmMod = context.get_mod(SQLOrmMod.__name__)
+    mod.create_task_orm(task=task, force=save_to_sql_request.force)
     return CommonResponse(message="ok")
 
 
 @api_router.post("/tasks/{task_name}/preservation/yaml", response_model=CommonResponse)
 async def task_save_to_yaml(
-    task_name: str, file_path: str = Body("./yaml"), force: bool = Body(True)
+    task_name: str, save_to_yaml_request: SaveToYamlRequest = SaveToYamlRequest()
 ) -> CommonResponse:
     """将task保存至yaml"""
-    from lk_flow.plugin.task_yaml_loader import TaskYamlLoader
+    from lk_flow.plugin.yaml_loader import YamlLoader
 
     context = Context.get_instance()
     task = context.get_process(task_name).config
-    try:
-        mod: TaskYamlLoader = context.get_mod(TaskYamlLoader.__name__)
-    except ModNotFoundError:
-        return CommonResponse(code=0, message=f"{TaskYamlLoader.__name__} not enable")
-    mod.dump_to_file(task=task, file_path=file_path, force=force)
+    mod: YamlLoader = context.get_mod(YamlLoader.__name__)
+    mod.dump_to_file(
+        task=task,
+        file_path=save_to_yaml_request.file_path,
+        force=save_to_yaml_request.force,
+    )
     return CommonResponse(message="ok")
 
 
@@ -120,7 +123,7 @@ async def start_server(
     app.include_router(api_router, prefix=api_path)
     app.add_exception_handler(LkFlowBaseError, base_error_handler)
     config = uvicorn.Config(
-        app, host=host, port=port, log_level=log_level, reload=False
+        app, host=host, port=port, log_level=log_level.lower(), reload=False
     )
     server = uvicorn.Server(config)
     await server.serve()
