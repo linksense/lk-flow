@@ -57,7 +57,7 @@ class SubProcess:
 
         if not os.path.isabs(source_path):
             # relative address . add to system log dir prefix
-            source_path = os.path.join(conf.log_save_dir, source_path)
+            source_path = os.path.abspath(os.path.join(conf.log_save_dir, source_path))
         if not os.path.exists(os.path.dirname(source_path)):
             # check path exists
             raise DictionaryNotExist(f"{os.path.dirname(source_path)} not exists")
@@ -98,7 +98,7 @@ class SubProcess:
             if i:
                 k, v = i.split("=")
                 environment[k] = v
-        env.update(self.config.environment)
+        env.update(environment)
         return env
 
     def _check_filename_exist(self, filename: str) -> str:
@@ -186,7 +186,7 @@ class SubProcess:
         """
         self.state = ProcessStatus.running
         self.last_start_datetime = datetime.datetime.now()
-        exit_code = await process.wait()
+        self.exit_code = await process.wait()
         self.last_stop_datetime = datetime.datetime.now()
         if self.process == process:
             self.pid = None
@@ -204,8 +204,7 @@ class SubProcess:
                 event_bus.publish_event(
                     Event(EVENT.TASK_RUNNING_ERROR, task_name=self.name)
                 )
-        self.exit_code = exit_code
-        return exit_code
+        return self.exit_code
 
     async def stop(self) -> None:
         if self.is_running():

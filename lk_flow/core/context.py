@@ -21,7 +21,7 @@ from lk_flow.errors import (
 )
 from lk_flow.models import SubProcess, Task
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     # https://stackoverflow.com/questions/39740632/python-type-hinting-without-cyclic-imports
     from lk_flow.core import ModAbstraction
 
@@ -65,7 +65,7 @@ class Context:
     def get_mod_map(self) -> ItemsView[str, Type["ModAbstraction"]]:
         return self._mod_map.items()
 
-    def add_mod_map(self, mod_name: str, mod: Type["ModAbstraction"]) -> None:
+    def add_mod(self, mod_name: str, mod: Type["ModAbstraction"]) -> None:
         if mod_name in self._mod_map.keys():
             _message = (
                 f"DuplicateModError at name = {mod_name}, {self._mod_map[mod_name]}"

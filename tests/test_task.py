@@ -6,15 +6,33 @@ import asyncio
 import sys
 
 import pytest
+from pydantic import ValidationError
 
-from lk_flow.errors import RunError
+from lk_flow.errors import DictionaryNotExist, RunError
 from lk_flow.models.subprocess import ProcessStatus, SubProcess
 from lk_flow.models.tasks import Task
 
 
 class TestTask:
+    def test_create(self):
+        with pytest.raises(ValidationError):
+            Task(name="no command", command=None, trigger_events="err_trigger_events")
+
     @pytest.mark.asyncio
     async def test_init(self):
+        subprocess = SubProcess(
+            Task(
+                name="t_date",
+                command="date",
+                environment="LK_FLOW_ENABLED=2",
+                stdout_logfile="/var/log/lk_flow/t_date.log",
+                stderr_logfile="/var/log/lk_flow/t_date.err",
+            )
+        )
+        await subprocess.start()
+        await asyncio.sleep(1)
+        assert subprocess.exit_code == 0
+
         with pytest.raises(RunError):
             await SubProcess(Task(name="no command", command=None)).start()
         with pytest.raises(RunError):
@@ -25,6 +43,16 @@ class TestTask:
             await SubProcess(
                 Task(
                     name="error_command", command=f"/bin/usr/error_command http.server"
+                )
+            ).start()
+
+        with pytest.raises(DictionaryNotExist):
+            await SubProcess(
+                Task(
+                    name="t_not_dir",
+                    command=f"python http.server",
+                    stderr_logfile="./not_exist_dir/err.log",
+                    stdout_logfile="./not_exist_dir/info.log",
                 )
             ).start()
 

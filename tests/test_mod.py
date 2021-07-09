@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Created by zza on 2021/6/24 14:40
 # Copyright 2021 LinkSense Technology CO,. Ltd
+import os
+import shutil
 from typing import Any, Dict
 
 import pytest
@@ -10,11 +12,14 @@ from lk_flow.config import conf
 from lk_flow.core import Context
 from lk_flow.core.mod import (
     ModAbstraction,
+    _sub_class_map,
     loading_plugin,
+    loading_plugin_command,
     mod_init,
     setup_mod,
     teardown_mod,
 )
+from lk_flow.plugin import yaml_loader
 
 
 class TestMod:
@@ -83,3 +88,16 @@ class TestMod:
         mod_init(self.context)
         out, err = capsys.readouterr()
         assert "init_mod ModA" in out
+
+    def test_loading_plugin_command(self):
+        loading_plugin_command()
+
+    def test_mod_dir(self):
+        if os.path.exists("./tmp_mod_dir"):
+            shutil.rmtree("./tmp_mod_dir")
+        os.mkdir("./tmp_mod_dir")
+        with pytest.raises(KeyError):
+            conf.mod_loaded = False
+            loading_plugin(os.path.dirname(yaml_loader.__file__))
+        shutil.rmtree("./tmp_mod_dir")
+        _sub_class_map.clear()

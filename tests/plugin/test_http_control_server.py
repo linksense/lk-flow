@@ -9,7 +9,7 @@ from typing import Callable, Dict
 
 import pytest
 
-from lk_flow import ProcessStatus, Task, start_server, Config
+from lk_flow import Config, ProcessStatus, Task, start_server
 from lk_flow.__main__ import init
 from lk_flow.plugin.http_control_server import HttpControlServer
 from lk_flow.plugin.http_stuff._pydantic_input_helper import input_helper

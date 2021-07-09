@@ -5,9 +5,13 @@
 import shutil
 from typing import Any, Dict
 
+import pytest
+
+from lk_flow import Task
 from lk_flow.__main__ import run
 from lk_flow.config import conf
 from lk_flow.core import EVENT, Context, Event, ModAbstraction
+from lk_flow.errors import DuplicateModError, LkFlowBaseError, ModNotFoundError
 
 
 class TestContext:
@@ -36,6 +40,22 @@ class TestContext:
             def assassins_on_call(cls, event: Event):
                 context = Context.get_instance()
                 assassins_listened.append(event)
+                if len(assassins_listened) == 1:
+                    context.start_task("t_http_server")
+                    context.add_task(Task(name="t_watch_date", command="watch date"))
+                    context.start_task("t_watch_date")
+
+                if len(assassins_listened) == 2:
+                    context.delete_task("t_http_server")
+                    # not error
+                    context.delete_task("t_http_server")
+                    context.get_stopped_processes()
+                    context.get_running_processes()
+                    with pytest.raises(DuplicateModError):
+                        context.add_mod(Assassins.__name__, Assassins)
+                    with pytest.raises(ModNotFoundError):
+                        context.get_mod("ModNotFoundError")
+                    raise LkFlowBaseError("a test error")
                 if len(assassins_listened) > 2:
                     context.event_bus.publish_event(Event(EVENT.EXEC_SYSTEM_CLOSE))
                     return True
@@ -90,5 +110,6 @@ class TestContext:
 
     def test_log_dir(self):
         from lk_flow.main import _make_sys_log_file
+
         shutil.rmtree(conf.log_save_dir)
         _make_sys_log_file()
