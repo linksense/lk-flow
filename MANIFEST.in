@@ -11,3 +11,5 @@ recursive-include docs *.rst conf.py Makefile make.bat
 
 include versioneer.py
 include lk_flow/_version.py
+include version
+include lk_flow/etc/*

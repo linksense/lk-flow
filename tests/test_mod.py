@@ -19,7 +19,6 @@ from lk_flow.core.mod import (
     setup_mod,
     teardown_mod,
 )
-from lk_flow.plugin import yaml_loader
 
 
 class TestMod:
@@ -96,8 +95,11 @@ class TestMod:
         if os.path.exists("./tmp_mod_dir"):
             shutil.rmtree("./tmp_mod_dir")
         os.mkdir("./tmp_mod_dir")
+        _sub_class_map.clear()
+        conf.mod_loaded = False
+        loading_plugin("./tmp_mod_dir")
         with pytest.raises(KeyError):
             conf.mod_loaded = False
-            loading_plugin(os.path.dirname(yaml_loader.__file__))
+            loading_plugin(None)
         shutil.rmtree("./tmp_mod_dir")
         _sub_class_map.clear()

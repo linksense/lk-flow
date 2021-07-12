@@ -24,3 +24,12 @@ class CoreTest(testutils.BaseTestCase):
         __main__.init()
 
         assert os.path.exists("lk_flow.db")
+
+    def test_generate_config(self):
+        with self.assertOutputMatches(".*lk_flow_config.yaml"):
+            __main__.fire.Fire(
+                {"generate_config": __main__.generate_config},
+                command=["generate_config"],
+            )
+        assert os.path.exists("lk_flow_config.yaml")
+        os.remove("lk_flow_config.yaml")

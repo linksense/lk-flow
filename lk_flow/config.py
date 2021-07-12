@@ -16,7 +16,7 @@ class Config:
         "[%(asctime)s] [%(threadName)s:%(thread)d] [%(levelname)s]: "
         "%(message)s [%(pathname)s <%(lineno)d>]"
     )
-    LOG_LEVEL = "DEBUG"
+    LOG_LEVEL = "INFO"
 
     log_save_dir = "/var/log/lk_flow"
     sentry_dns = None

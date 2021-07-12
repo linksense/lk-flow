@@ -20,3 +20,4 @@ fastapi
 nest_asyncio
 requests
 pandas
+requests_async

@@ -7,7 +7,7 @@ from typing import Any, Dict
 
 import pytest
 
-from lk_flow import Task
+from lk_flow import Task, logger
 from lk_flow.__main__ import run
 from lk_flow.config import conf
 from lk_flow.core import EVENT, Context, Event, ModAbstraction
@@ -18,6 +18,7 @@ class TestContext:
     @classmethod
     def setup_class(cls):
         conf.mod_config["HttpControlServer"] = {"enable": False}
+        logger.setLevel("DEBUG")
 
     @classmethod
     def teardown_class(cls):

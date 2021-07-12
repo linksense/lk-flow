@@ -51,10 +51,22 @@ def entry_point() -> None:  # pragma: no cover
         "version": version,
         "run": run,
         "init": init,
+        "generate_config": generate_config,
     }
     command_map.update(loading_plugin_command())
     fire.core.Display = lambda lines, out: print(*lines, file=out)
     fire.Fire(command_map)
+
+
+def generate_config() -> str:
+    """生成配置文件至当前目录"""
+    import os
+    import shutil
+
+    config_file = os.path.join(os.path.dirname(__file__), "etc", "lk_flow_config.yaml")
+    target_file = os.path.join(os.getcwd(), "lk_flow_config.yaml")
+    shutil.copy(config_file, target_file)
+    return f"generate to {target_file}"
 
 
 if __name__ == "__main__":
