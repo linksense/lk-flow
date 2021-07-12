@@ -6,7 +6,8 @@ from typing import Any, Dict
 
 from sqlalchemy import Boolean, Column, Integer, String, create_engine
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 from lk_flow.core import Context, ModAbstraction
 from lk_flow.env import logger

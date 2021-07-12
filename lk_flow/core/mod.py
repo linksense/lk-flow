@@ -61,9 +61,9 @@ def setup_mod(context: Context) -> None:
         if not mod_config.get("enable", True):
             logger.info(f"[{name} mod] not enabled. pass.")
             continue
-        context.add_mod(name, mod)
         logger.info(f"[{name} mod] setup start")
         mod.setup_mod(mod_config)
+        context.add_mod(name, mod)
         logger.info(f"[{name} mod] setup finish")
 
 
