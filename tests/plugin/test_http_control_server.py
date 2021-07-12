@@ -121,7 +121,7 @@ class TestHttpControlServer(TestLkFlow):
             os.remove(f"{task_name}.yaml")
 
         command_persist = commands["persist"]
-        res = command_persist(task_name)
+        res = command_persist(task_name, force=True)
         assert res == "ok"
         assert os.path.exists(f"{task_name}.yaml")
         os.remove(f"{task_name}.yaml")

@@ -13,7 +13,9 @@ import pytest
 
 def setup_module(module):
     """setup any state specific to the execution of the given module."""
-    pass
+    from lk_flow.__main__ import generate_config
+
+    generate_config()
 
 
 def teardown_module(module):

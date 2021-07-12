@@ -36,6 +36,10 @@ class ProcessResponse(CommonResponse):
     data: Optional[SubProcessModel] = None
 
 
+class TaskResponse(CommonResponse):
+    data: Optional[Task] = None
+
+
 class ProcessMapResponse(CommonResponse):
     data: Optional[Dict[str, SubProcessModel]] = None
 

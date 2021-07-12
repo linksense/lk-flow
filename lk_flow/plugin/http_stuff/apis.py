@@ -17,8 +17,8 @@ from lk_flow.plugin.http_stuff.models import (
     ProcessMapResponse,
     ProcessResponse,
     SaveToSqlRequest,
-    SaveToYamlRequest,
     SubProcessModel,
+    TaskResponse,
 )
 
 api_router = APIRouter()
@@ -72,6 +72,13 @@ async def task_create(task: Task) -> ProcessResponse:
     return ProcessResponse(data=SubProcessModel.from_orm(item))
 
 
+@api_router.get("/tasks/{task_name}", response_model=TaskResponse)
+async def task_get(task_name: str) -> TaskResponse:
+    context = Context.get_instance()
+    process = context.get_process(task_name)
+    return TaskResponse(data=process.config)
+
+
 @api_router.delete("/tasks/{task_name}", response_model=CommonResponse)
 async def task_delete(task_name: str) -> CommonResponse:
     context = Context.get_instance()
@@ -91,24 +98,6 @@ async def task_save_to_sql(
     task = context.get_process(task_name).config
     mod: SQLOrmMod = context.get_mod(SQLOrmMod.__name__)
     mod.create_task_orm(task=task, force=save_to_sql_request.force)
-    return CommonResponse(message="ok")
-
-
-@api_router.post("/tasks/{task_name}/preservation/yaml", response_model=CommonResponse)
-async def task_save_to_yaml(
-    task_name: str, save_to_yaml_request: SaveToYamlRequest = SaveToYamlRequest()
-) -> CommonResponse:
-    """将task保存至yaml"""
-    from lk_flow.plugin.yaml_loader import YamlLoader
-
-    context = Context.get_instance()
-    task = context.get_process(task_name).config
-    mod: YamlLoader = context.get_mod(YamlLoader.__name__)
-    mod.dump_to_file(
-        task=task,
-        file_path=save_to_yaml_request.file_path,
-        force=save_to_yaml_request.force,
-    )
     return CommonResponse(message="ok")
 
 

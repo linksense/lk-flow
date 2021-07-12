@@ -190,13 +190,19 @@ class ControlCommands:
             执行结果
         """
         if save_type == "yaml":
-            url = f"{self._base_path}/tasks/{task_name}/preservation/yaml"
-            data = {"force": force, "file_path": "."}
+            from lk_flow.plugin.yaml_loader import YamlLoader
+
+            url = f"{self._base_path}/tasks/{task_name}"
+            res = requests.get(url).json()
+            task = Task(**res["data"])
+            print(f"{task_name} json: {task.json()}")
+            YamlLoader.dump_to_file(task, ".", force=force)
+            return "ok"
         elif save_type == "sql":
             url = f"{self._base_path}/tasks/{task_name}/preservation/sql"
             data = {"force": force}
+            result: str = requests.post(url, json=data).json()["message"]
+            return result
+
         else:
             return "error save_type. please use it in [ yaml | sql ]"
-
-        result: str = requests.post(url, json=data).json()["message"]
-        return result
