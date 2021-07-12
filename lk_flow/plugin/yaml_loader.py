@@ -3,7 +3,7 @@
 # Created by zza on 2021/6/30 11:13
 # Copyright 2021 LinkSense Technology CO,. Ltd
 import os
-from typing import Any, Dict
+from typing import Any, Callable, Dict
 
 import yaml
 from lk_flow.core import Context, ModAbstraction
@@ -13,6 +13,8 @@ from lk_flow.models import Task
 
 
 class YamlLoader(ModAbstraction):
+    context: Context
+
     @classmethod
     def init_mod(cls, mod_config: Dict[str, Any]) -> None:
         """初始化mod 无配置文件夹自动创建"""
@@ -41,15 +43,22 @@ class YamlLoader(ModAbstraction):
             logger.warning(f"{yaml_path} not exists")
             return
 
-        context = Context.get_instance()
+        cls.context = Context.get_instance()
         for file_name in os.listdir(yaml_path):
-            with open(os.path.join(yaml_path, file_name), "r", encoding="utf8") as f:
-                task_data = yaml.safe_load(f)
-            if not task_data:
-                logger.info(f"{file_name} is empty")
-                continue
-            task = Task(**task_data)
-            context.add_task(task)
+            yaml_file_path = os.path.join(yaml_path, file_name)
+            cls.read_yaml_file(yaml_file_path)
+
+    @classmethod
+    def read_yaml_file(cls, yaml_file_path: str) -> None:
+        """将yaml文件载入系统"""
+        with open(yaml_file_path, "r", encoding="utf8") as f:
+            task_data = yaml.safe_load(f)
+        if not task_data:
+            logger.info(f"{yaml_file_path} is empty")
+            return
+        task = Task(**task_data)
+        cls.context.add_task(task)
+        return
 
     @classmethod
     def dump_to_file(
@@ -66,3 +75,8 @@ class YamlLoader(ModAbstraction):
         with open(path, "w", encoding="utf8") as f:
             f.write(yaml_str)
         return
+
+    @classmethod
+    def get_commands(cls, mod_config: Dict[str, Any]) -> Dict[str, Callable]:
+        """增加系统默认命令"""
+        return {"read_yaml_file": cls.read_yaml_file}
