@@ -4,5 +4,5 @@ directory: "."
 auto_restart: false
 restart_retries: 3
 environment: null
-cron_expression: null
+cron_expression: "0/5 * * * * *"
 trigger_events: task_pre_start__t_http_server

@@ -51,3 +51,7 @@ class SaveToSqlRequest(BaseModel):
 class SaveToYamlRequest(BaseModel):
     force: bool = True
     file_path: str = "./yaml"
+
+
+class ScheduleResponse(CommonResponse):
+    data: Dict[str, datetime.datetime] = {}  # 进程时间表

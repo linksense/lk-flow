@@ -17,6 +17,7 @@ from lk_flow.plugin.http_stuff.models import (
     ProcessMapResponse,
     ProcessResponse,
     SaveToSqlRequest,
+    ScheduleResponse,
     SubProcessModel,
     TaskResponse,
 )
@@ -99,6 +100,23 @@ async def task_save_to_sql(
     mod: SQLOrmMod = context.get_mod(SQLOrmMod.__name__)
     mod.create_task_orm(task=task, force=save_to_sql_request.force)
     return CommonResponse(message="ok")
+
+
+@api_router.get("/time_trigger/process_schedule", response_model=ScheduleResponse)
+async def time_trigger_get() -> ScheduleResponse:
+    """
+    获取所有计划执行任务
+
+    Returns:
+        '{"message": "ok", "code": 0, "data": {"task_name": "2021-07-14T14:59:00.123456"}}'
+
+    """
+    from lk_flow.plugin.time_trigger import TimeTrigger
+
+    context = Context.get_instance()
+    mod: TimeTrigger = context.get_mod("TimeTrigger")
+    resp = ScheduleResponse(data=mod.PROCESS_SCHEDULE)
+    return resp
 
 
 async def start_server(

@@ -206,3 +206,9 @@ class ControlCommands:
 
         else:
             return "error save_type. please use it in [ yaml | sql ]"
+
+    def schedule(self) -> dict:
+        """查看task时间表"""
+        url = f"{self._base_path}/time_trigger/process_schedule"
+        result: dict = requests.get(url).json()["data"]
+        return result

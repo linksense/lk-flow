@@ -32,4 +32,3 @@ class CoreTest(testutils.BaseTestCase):
                 command=["generate_config"],
             )
         assert os.path.exists("lk_flow_config.yaml")
-        os.remove("lk_flow_config.yaml")

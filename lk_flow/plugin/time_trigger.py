@@ -85,7 +85,9 @@ class TimeTrigger(ModAbstraction):
         使用TASK_ADD事件触发
         """
         if task.cron_expression:  # 定时启动
-            next_datetime = croniter(task.cron_expression).next(datetime.datetime)
+            next_datetime = croniter(
+                task.cron_expression, datetime.datetime.now()
+            ).next(datetime.datetime)
             cls.PROCESS_SCHEDULE[task.name] = next_datetime
 
     @classmethod

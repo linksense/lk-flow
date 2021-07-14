@@ -64,6 +64,12 @@ class TestHttpControlServer(TestLkFlow):
             command_status = commands["status"]
 
         command_delete = commands["delete"]
+
+        # schedule
+        command_schedule = commands["schedule"]
+        res = command_schedule()
+        assert "t_echo_1" in res
+
         # delete yaml task
         command_delete("t_echo_1")
         command_delete("t_http_server")
