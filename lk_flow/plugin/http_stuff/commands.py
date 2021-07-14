@@ -4,7 +4,6 @@
 # Copyright 2021 LinkSense Technology CO,. Ltd
 import asyncio
 import functools
-import json
 from typing import Callable, Dict, List
 
 import pandas
@@ -75,7 +74,7 @@ class ControlCommands:
             # 未启动提示装饰器
             def wrap_echo_message(func: Callable) -> Callable:
                 @functools.wraps(func)
-                def echo_message() -> str:
+                def echo_message(*_, **__) -> str:
                     return self._server_no_run_message
 
                 return echo_message
@@ -85,9 +84,29 @@ class ControlCommands:
                 ret[_func_name] = wrap_echo_message(_func)
         return ret
 
-    def status(self) -> str:
+    def status(self, task_name: str = None, return_type: str = "table") -> str:
         """系统内task信息"""
         all_result: dict = requests.get(f"{self._base_path}/").json()["data"]
+
+        if task_name:
+            import re
+
+            # 支持正则匹配task名称
+            all_result = {
+                _task_name: item
+                for _task_name, item in all_result.items()
+                if re.match(task_name, _task_name) or task_name in _task_name
+            }
+        if return_type == "json":
+            import json
+
+            return json.dumps(all_result, indent=4)
+
+        elif return_type == "yaml":
+            import yaml
+
+            return yaml.dump(all_result)
+
         ret = []
         for task_name, item in all_result.items():
             info = {
@@ -148,6 +167,8 @@ class ControlCommands:
         Returns:
             执行结果
         """
+        import json
+
         from lk_flow.plugin.http_stuff._pydantic_input_helper import input_helper
 
         if task_json:
