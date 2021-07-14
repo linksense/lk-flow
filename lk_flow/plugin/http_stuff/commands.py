@@ -196,8 +196,8 @@ class ControlCommands:
             res = requests.get(url).json()
             task = Task(**res["data"])
             print(f"{task_name} json: {task.json()}")
-            YamlLoader.dump_to_file(task, ".", force=force)
-            return "ok"
+            yaml_str = YamlLoader.dump_to_file(task, ".", force=force)
+            return yaml_str
         elif save_type == "sql":
             url = f"{self._base_path}/tasks/{task_name}/preservation/sql"
             data = {"force": force}

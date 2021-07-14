@@ -63,7 +63,7 @@ class YamlLoader(ModAbstraction):
     @classmethod
     def dump_to_file(
         cls, task: Task, file_path: str = "./yaml", force: bool = True
-    ) -> None:
+    ) -> str:
         """将task保存至yaml"""
         if not os.path.exists(file_path) or not os.path.isdir(file_path):
             raise DirNotFoundError(f"dir {file_path} not exists")
@@ -74,7 +74,7 @@ class YamlLoader(ModAbstraction):
         yaml_str = yaml.dump(task.dict())
         with open(path, "w", encoding="utf8") as f:
             f.write(yaml_str)
-        return
+        return yaml_str
 
     @classmethod
     def get_commands(cls, mod_config: Dict[str, Any]) -> Dict[str, Callable]:
