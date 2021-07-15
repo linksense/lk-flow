@@ -13,7 +13,7 @@ from lk_flow import Config, ProcessStatus, Task, start_server
 from lk_flow.__main__ import init
 from lk_flow.plugin.http_control_server import HttpControlServer
 from lk_flow.plugin.http_stuff._pydantic_input_helper import input_helper
-from lk_flow.plugin.http_stuff.commands import ControlCommands
+from lk_flow.plugin.http_stuff.commands import ControlCommands, true_func
 from tests.test_lk_flow import TestLkFlow
 
 
@@ -49,7 +49,7 @@ class TestHttpControlServer(TestLkFlow):
         assert ControlCommands._server_no_run_message == command_status()
 
     @pytest.mark.asyncio
-    async def test_all_commands(self):
+    async def test_all_commands(self, monkeypatch):
         commands = await self._get_commands()
 
         # status
@@ -67,6 +67,36 @@ class TestHttpControlServer(TestLkFlow):
         assert "t_echo_1" in res
         res = command_status("t_", return_type="yaml")
         assert "t_echo_1" in res
+
+        assert true_func() is True
+
+        def true_once():
+            yield True
+            yield False
+
+        class MockTrueFunc(object):
+            def __init__(self):
+                self.gen = true_once()
+
+            def __call__(self):
+                return next(self.gen)
+
+        command_log = commands["log"]
+
+        monkeypatch.setattr(
+            "lk_flow.plugin.http_stuff.commands.true_func", MockTrueFunc()
+        )
+        command_log("t_echo_1", log_type="out")
+        monkeypatch.setattr(
+            "lk_flow.plugin.http_stuff.commands.true_func", MockTrueFunc()
+        )
+        command_log("t_echo_1", log_type="err")
+        with pytest.raises(KeyError):
+            command_log("t_echo_1", log_type="error_type")
+        monkeypatch.setattr(
+            "lk_flow.plugin.http_stuff.commands.true_func", MockTrueFunc()
+        )
+        command_log(None)
 
         # schedule
         command_schedule = commands["schedule"]

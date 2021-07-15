@@ -3,7 +3,7 @@
 # Created by zza on 2021/7/1 14:26
 # Copyright 2021 LinkSense Technology CO,. Ltd
 import datetime
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
 
@@ -55,3 +55,17 @@ class SaveToYamlRequest(BaseModel):
 
 class ScheduleResponse(CommonResponse):
     data: Dict[str, datetime.datetime] = {}  # 进程时间表
+
+
+class SystemInfo(BaseModel):
+    system_start_time: datetime.datetime
+    mod_config: Dict[str, Dict[str, Any]]
+    log_level: str
+    log_save_dir: str
+    system_log_file: str
+    sleep_time: int
+    log_format: str
+
+
+class SystemInfoResponse(CommonResponse):
+    data: SystemInfo

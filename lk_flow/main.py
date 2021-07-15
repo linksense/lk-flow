@@ -17,8 +17,7 @@ from lk_flow.env import logger
 def _make_sys_log_file() -> None:
     if not os.path.exists(conf.log_save_dir):
         os.mkdir(conf.log_save_dir)
-    log_file = os.path.join(conf.log_save_dir, "lk_flow.log")
-    file_handler = logging.FileHandler(log_file, encoding="utf8")
+    file_handler = logging.FileHandler(conf.system_log_file, encoding="utf8")
     file_handler.setFormatter(logging.Formatter(conf.LOG_FORMAT))
     logger.addHandler(file_handler)
 

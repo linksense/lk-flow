@@ -35,6 +35,7 @@ class Context:
         self.config: Config = config
         self.event_bus: EventBus = EventBus()
         self.sleep_time: int = config.sleep_time
+        self.system_start_time: datetime.datetime = datetime.datetime.now()
         # Process 集合
         self._PROCESS_ALL = {}  # 所有Task
         self._PROCESS_RUNNING = {}  # 正在跑的

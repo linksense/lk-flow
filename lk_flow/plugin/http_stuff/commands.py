@@ -4,13 +4,18 @@
 # Copyright 2021 LinkSense Technology CO,. Ltd
 import asyncio
 import functools
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Optional
 
 import pandas
 import requests
 import requests_async
 
 from lk_flow.models import Task
+
+
+def true_func() -> bool:
+    """for unittest"""
+    return True
 
 
 def _async_request(method: str, url: str, **kwargs) -> requests_async.models.Response:
@@ -86,7 +91,7 @@ class ControlCommands:
 
     def status(self, task_name: str = None, return_type: str = "table") -> str:
         """系统内task信息"""
-        all_result: dict = requests.get(f"{self._base_path}/").json()["data"]
+        all_result: dict = requests.get(f"{self._base_path}/processes").json()["data"]
 
         if task_name:
             import re
@@ -129,13 +134,13 @@ class ControlCommands:
 
     def start(self, task_name: str) -> str:
         """启动task"""
-        url = f"{self._base_path}/process/{task_name}/start"
+        url = f"{self._base_path}/processes/{task_name}/start"
         result: str = requests.get(url).json()["data"]["pid"]
         return result
 
     def stop(self, task_name: str) -> str:
         """手动停止task"""
-        url = f"{self._base_path}/process/{task_name}/stop"
+        url = f"{self._base_path}/processes/{task_name}/stop"
         result: str = requests.get(url).json()["data"]["state"]
         return result
 
@@ -233,3 +238,51 @@ class ControlCommands:
         url = f"{self._base_path}/time_trigger/process_schedule"
         result: dict = requests.get(url).json()["data"]
         return result
+
+    def log(
+        self,
+        task_name: str = None,
+        *_,
+        n: int = 20,
+        log_type: str = "out",
+    ) -> Optional[str]:  # noqa: VNE001
+        """
+        use like "tail -f task.log -n 20"
+
+        Args:
+            task_name: task_name in system
+            n: last log lang
+            log_type: out or err | stdout_logfile stderr_logfile
+        Returns:
+            log text loop
+            use ctrl+C to break
+        """
+        if task_name:
+            url = f"{self._base_path}/processes/{task_name}"
+            res = requests.get(url).json()
+            if log_type == "out":
+                file_path = res["data"]["stdout_logfile"]
+            elif log_type == "err":
+                file_path = res["data"]["stderr_logfile"]
+            else:
+                raise KeyError("choose file_path in (out, err)")
+        else:
+            url = f"{self._base_path}/system"
+            res = requests.get(url).json()
+            file_path = res["data"]["system_log_file"]
+
+        import subprocess  # noqa: S404
+
+        process = subprocess.Popen(
+            ["/usr/bin/tail", "-f", f"-n {n}", file_path],
+            shell=False,  # noqa: S603
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        try:
+            while true_func():
+                line = process.stdout.readline().decode()
+                print(line, end="")
+        except KeyboardInterrupt:  # pragma: no cover
+            pass
+        return

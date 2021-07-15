@@ -47,9 +47,12 @@ class TimeTrigger(ModAbstraction):
             # 未运行的判断是否运行
             if cls._should_start(event.now, task_name):
                 cls.context.start_task(task_name)
-                cls.PROCESS_SCHEDULE[task_name] = croniter(
-                    process_manager.config.cron_expression
+                # croniter 精度为分钟当前分钟会重复触发
+                next_datetime = croniter(
+                    process_manager.config.cron_expression,
+                    datetime.datetime.now() + datetime.timedelta(minutes=1),
                 ).next(datetime.datetime)
+                cls.PROCESS_SCHEDULE[task_name] = next_datetime
 
     @classmethod
     def _delete_task_event_listener(cls, event: Event) -> None:

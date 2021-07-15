@@ -26,7 +26,7 @@ class Config:
     mod_dir: str = None
     mod_config: Dict[str, Dict[str, Any]] = defaultdict(dict)
     mod_config["SQLOrmMod"]["SQLALCHEMY_DATABASE_URI"] = "sqlite:///lk_flow.db"
-
+    system_log_file = os.path.join(log_save_dir, "lk_flow.log")
     # Flag
     mod_loaded: bool = False  # 是否需要加载mod 避免重复加载而报错
 
