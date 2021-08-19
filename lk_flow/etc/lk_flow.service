@@ -1,0 +1,13 @@
+[Unit]
+Description=lk_flow deamon
+After=rc-local.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory={work_dir}
+ExecStart={python_exec} -m lk_flow run
+
+[Install]
+WantedBy=multi-user.target

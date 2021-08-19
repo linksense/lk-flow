@@ -10,7 +10,7 @@ from starlette.responses import JSONResponse
 
 from lk_flow import conf, logger
 from lk_flow.core import EVENT, Context, Event
-from lk_flow.errors import LkFlowBaseError
+from lk_flow.errors import LkFlowBaseError, TaskNotFoundError
 from lk_flow.models import Task
 from lk_flow.plugin.http_stuff.models import (
     CommonResponse,
@@ -74,10 +74,24 @@ async def get_task(task_name: str) -> ProcessResponse:
     return ProcessResponse(data=subprocess)
 
 
-@api_router.get("/processes/{task_name}/start", response_model=ProcessResponse)
-async def task_start(task_name: str) -> ProcessResponse:
-    """启动task"""
+@api_router.post("/processes/{task_name}/start", response_model=ProcessResponse)
+async def task_start(task_name: str, task: Task = None) -> ProcessResponse:
+    """启动task
+
+    Args:
+        task_name: 任务名
+        task: 如果任务不存在 则载入的任务配置
+
+    Returns:
+        ProcessResponse
+    """
     context = Context.get_instance()
+    if task:
+        task.name = task_name  # 保持名称统一
+        try:
+            context.get_process(task_name=task.name)
+        except TaskNotFoundError:
+            context.add_task(task)
     context.start_task(task_name)
     subprocess = SubProcessModel.from_orm(context.get_process(task_name))
     return ProcessResponse(data=subprocess)

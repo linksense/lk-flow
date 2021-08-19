@@ -10,6 +10,7 @@ core与model需要的工具包 在内部创建
 import functools
 import inspect
 import logging
+import os
 import time
 from typing import Any, Callable
 
@@ -42,3 +43,36 @@ def time_consuming_log(log_level: logging.INFO) -> Callable:
         return wrapper
 
     return middle_wrapper
+
+
+def add_systemd(work_dir: str = None) -> None:
+    """add lk_flow daemon to system service"""
+    import sys
+
+    if not work_dir:
+        work_dir = os.getcwd()
+    python_exec = sys.executable
+    service_file = os.path.join(os.path.dirname(__file__), "etc", "lk_flow.service")
+    template = open(service_file, "r", encoding="utf8").read()
+
+    service = template.format(python_exec=python_exec, work_dir=work_dir)
+    with open("/usr/lib/systemd/system/lk_flow.service", "w", encoding="utf8") as f:
+        f.write(service)
+    os.popen("/usr/bin/systemctl start lk_flow.service")  # noqa: S605
+    return
+
+
+def ln_command() -> bool:
+    """create soft link to /usr/bin/lk_flow"""
+    import sys
+
+    python_exec = sys.executable
+    exec_file = os.path.join(os.path.dirname(python_exec), "lk_flow")
+    if os.path.exists(exec_file):
+        os.symlink(exec_file, "/usr/bin/lk_flow")
+        return True
+    return False
+
+
+if __name__ == "__main__":
+    add_systemd()
