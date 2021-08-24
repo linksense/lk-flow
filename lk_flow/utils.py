@@ -62,16 +62,14 @@ def add_systemd(work_dir: str = None) -> None:
     return
 
 
-def ln_command() -> bool:
+def ln_command() -> None:
     """create soft link to /usr/bin/lk_flow"""
     import sys
 
     python_exec = sys.executable
     exec_file = os.path.join(os.path.dirname(python_exec), "lk_flow")
-    if os.path.exists(exec_file):
+    if not os.path.exists("/usr/bin/lk_flow"):
         os.symlink(exec_file, "/usr/bin/lk_flow")
-        return True
-    return False
 
 
 if __name__ == "__main__":

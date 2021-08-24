@@ -135,7 +135,7 @@ class ControlCommands:
     def start(self, task_name: str) -> str:
         """启动task"""
         url = f"{self._base_path}/processes/{task_name}/start"
-        result: str = requests.get(url).json()["data"]["pid"]
+        result: str = requests.post(url).json()["data"]["pid"]
         return result
 
     def stop(self, task_name: str) -> str:

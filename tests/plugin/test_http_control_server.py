@@ -8,6 +8,7 @@ import os
 from typing import Callable, Dict
 
 import pytest
+import requests_async
 
 from lk_flow import Config, ProcessStatus, Task, start_server
 from lk_flow.__main__ import init
@@ -139,6 +140,7 @@ class TestHttpControlServer(TestLkFlow):
         res = command_delete(task_name)
         assert res == "ok"
 
+        await self._test_api()
         self._test_persist(commands)
         # sys_close
         command_sys_close = commands["sys_close"]
@@ -201,3 +203,9 @@ class TestHttpControlServer(TestLkFlow):
         monkeypatch.setattr("builtins.input", fake_input)
         ret: Task = input_helper()
         assert ret.name == "t_task"
+
+    async def _test_api(self):
+        json = {"name": "t_ls", "command": "ls"}
+        url = "http://localhost:9002/lk_flow/api/v1/processes/t_ls/start"
+        res = await requests_async.post(url, json=json)
+        assert res.json()["code"] == 0
