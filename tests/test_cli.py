@@ -23,7 +23,8 @@ class CoreTest(testutils.BaseTestCase):
             __main__.fire.Fire({"init": __main__.init}, command=["init", "--help"])
         if os.path.exists("/usr/bin/lk_flow"):
             os.remove("/usr/bin/lk_flow")
-        __main__.init()
+        __main__.init(auto_start=True)
+        os.popen("/usr/bin/systemctl stop lk_flow.service")
 
         assert os.path.exists("lk_flow.db")
 

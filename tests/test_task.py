@@ -8,12 +8,17 @@ import sys
 import pytest
 from pydantic import ValidationError
 
+from lk_flow import Context, conf
 from lk_flow.errors import DictionaryNotExist, RunError
 from lk_flow.models.subprocess import ProcessStatus, SubProcess
 from lk_flow.models.tasks import Task
 
 
 class TestTask:
+    @classmethod
+    def setup_class(cls):
+        context = Context(config=conf)
+
     def test_create(self):
         with pytest.raises(ValidationError):
             Task(name="no command", command=None, trigger_events="err_trigger_events")
@@ -97,7 +102,7 @@ class TestTask:
             )
         )
         await p_manger.start()
-        await asyncio.sleep(1)  # wait for start
+        await asyncio.sleep(3)  # wait for start
         assert p_manger.state is ProcessStatus.exit_error
 
         p_manger = SubProcess(

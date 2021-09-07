@@ -97,7 +97,7 @@ async def task_start(task_name: str, task: Task = None) -> ProcessResponse:
     return ProcessResponse(data=subprocess)
 
 
-@api_router.get("/processes/{task_name}/stop", response_model=ProcessResponse)
+@api_router.post("/processes/{task_name}/stop", response_model=ProcessResponse)
 async def task_stop(task_name: str) -> ProcessResponse:
     """手动关闭task"""
     context = Context.get_instance()

@@ -45,7 +45,7 @@ def time_consuming_log(log_level: logging.INFO) -> Callable:
     return middle_wrapper
 
 
-def add_systemd(work_dir: str = None) -> None:
+def add_systemd(work_dir: str = None, auto_start: bool = True) -> None:
     """add lk_flow daemon to system service"""
     import sys
 
@@ -58,7 +58,8 @@ def add_systemd(work_dir: str = None) -> None:
     service = template.format(python_exec=python_exec, work_dir=work_dir)
     with open("/usr/lib/systemd/system/lk_flow.service", "w", encoding="utf8") as f:
         f.write(service)
-    os.popen("/usr/bin/systemctl start lk_flow.service")  # noqa: S605
+    if auto_start:
+        os.popen("/usr/bin/systemctl start lk_flow.service")  # noqa: S605
     return
 
 

@@ -30,7 +30,10 @@ def run() -> None:  # pragma: no cover
 
 
 def init(
-    systemd: bool = True, create_command: bool = True, work_dir: str = None
+    systemd: bool = True,
+    create_command: bool = True,
+    work_dir: str = None,
+    auto_start: bool = True,
 ) -> None:
     """初始化系统
 
@@ -48,7 +51,7 @@ def init(
     loading_plugin(context.config.mod_dir)
     mod_init(context)
     if systemd:
-        add_systemd(work_dir)
+        add_systemd(work_dir, auto_start)
     if create_command:
         ln_command()
 

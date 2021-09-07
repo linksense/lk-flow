@@ -141,7 +141,7 @@ class ControlCommands:
     def stop(self, task_name: str) -> str:
         """手动停止task"""
         url = f"{self._base_path}/processes/{task_name}/stop"
-        result: str = requests.get(url).json()["data"]["state"]
+        result: str = requests.post(url).json()["data"]["state"]
         return result
 
     def restart(self, task_name: str) -> str:
