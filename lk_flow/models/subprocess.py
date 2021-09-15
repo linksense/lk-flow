@@ -14,6 +14,9 @@ from lk_flow.env import logger
 from lk_flow.errors import DictionaryNotExist, RunError
 from lk_flow.models.tasks import Task
 
+# For ensures that the python output is sent straight to get
+os.environ["PYTHONUNBUFFERED"] = "1"
+
 
 class ProcessStatus(str, Enum):
     sleeping = "sleeping"
