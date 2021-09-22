@@ -1,0 +1,8 @@
+name: "t_http_server"
+command: "/usr/bin/python3 -m http.server 8005"
+directory: "."
+auto_restart: false
+restart_retries: 0
+environment: null
+cron_expression: null
+trigger_events: null
