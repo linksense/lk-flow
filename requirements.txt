@@ -1,0 +1,14 @@
+ipython
+fire
+PyYAML
+sentry_sdk
+pydantic
+sentry_sdk
+SQLAlchemy==1.3.10
+croniter
+uvicorn
+fastapi
+nest_asyncio
+requests
+pandas
+requests_async

@@ -1,0 +1,27 @@
+# lk_flow配置
+
+## 插件配置
+
+mod_config: # 插件配置表
+  SQLOrmMod:
+    enable: true # 是否启动
+    SQLALCHEMY_DATABASE_URI: sqlite:///lk_flow.db # 数据库位置
+
+  HttpControlServer:
+    enable: true
+
+  HookTrigger:
+    enable: true
+
+  YamlLoader:
+    enable: true
+    task_yaml_dir: ./yaml # 任务yaml读取文件夹
+
+
+## 系统配置
+
+LOG_LEVEL: "INFO" # 日志等级
+#LOG_FORMAT: '[%(asctime)s] [%(threadName)s:%(thread)d] [%(levelname)s]: %(message)s [%(pathname)s <%(lineno)d>]' # 日志输出格式
+#sentry_dns: null # sentry 配置
+#log_save_dir: /var/log/lk_flow # 日志文件夹
+#sleep_time: 1 # 进程检查轮询时间
