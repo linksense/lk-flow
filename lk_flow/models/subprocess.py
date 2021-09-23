@@ -214,6 +214,7 @@ class SubProcess:
             self.process.terminate()
             self.last_stop_datetime = datetime.datetime.now()
             self._watcher_task.cancel()
+            os.kill(-self.pid, 9)
             self.pid = None
             self.state = ProcessStatus.stopped
 
