@@ -193,8 +193,7 @@ class SubProcess:
         self.last_stop_datetime = datetime.datetime.now()
         if self.process == process:
             self.pid = None
-            task_out.cancel()
-            task_err.cancel()
+            # log task will stop by stream.at_eof
             from lk_flow.core import EVENT, Context, Event
 
             event_bus = Context.get_instance().event_bus
@@ -214,7 +213,7 @@ class SubProcess:
             self.process.terminate()
             self.last_stop_datetime = datetime.datetime.now()
             self._watcher_task.cancel()
-            os.kill(-self.pid, 9)
+            os.kill(self.pid, 9)  # kill
             self.pid = None
             self.state = ProcessStatus.stopped
 
