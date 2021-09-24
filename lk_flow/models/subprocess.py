@@ -213,7 +213,10 @@ class SubProcess:
             self.process.terminate()
             self.last_stop_datetime = datetime.datetime.now()
             self._watcher_task.cancel()
-            os.kill(self.pid, 9)  # kill
+            if os.getpgid(self.pid) == self.pid:
+                os.killpg(self.pid, 9)  # kill as group
+            else:
+                os.kill(self.pid, 9)  # kill self
             self.pid = None
             self.state = ProcessStatus.stopped
 
