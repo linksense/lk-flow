@@ -125,6 +125,7 @@ class ControlCommands:
             return "No task in system"
         df = pandas.DataFrame(ret)
         df = df.set_index("name")
+        pandas.set_option('display.max_rows', len(ret))
         return str(df)
 
     def sys_close(self) -> str:
