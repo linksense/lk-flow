@@ -31,8 +31,8 @@ setup(
     cmdclass=versioneer.get_cmdclass(),
     description="Life process manager",
     long_description=readme + "\n\n" + history,
-    author="zza",
-    author_email="740713651@qq.com",
+    author="linksense",
+    author_email="liuhuijun@lksense.com",
     url="https://github.com/zza/lk-flow",
     packages=find_packages(include=["lk_flow", "lk_flow.*"]),
     entry_points={
