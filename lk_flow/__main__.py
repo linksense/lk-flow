@@ -30,7 +30,7 @@ def run() -> None:  # pragma: no cover
 
 
 def init(
-    systemd: bool = True,
+    systemd: bool = False,
     create_command: bool = True,
     work_dir: str = None,
     auto_start: bool = True,
@@ -41,6 +41,7 @@ def init(
         systemd: 增加到system service
         create_command: 创建软连接
         work_dir: systemd service工作目录 默认当前目录
+        auto_start: 如果增加system service 是否自动启动服务
     """
     from lk_flow.config import conf
     from lk_flow.core import Context, mod_init

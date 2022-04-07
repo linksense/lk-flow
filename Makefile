@@ -99,3 +99,6 @@ requirements: ## make requirements.txt
 
 deploy: ## deploy your service
 	echo "todo"
+
+kill: ## kill lk_flow main process
+	ps -aux | grep lk_flow | grep run | awk '{print $$2}' | xargs kill -9

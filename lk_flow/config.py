@@ -13,8 +13,8 @@ class Config:
     """
 
     LOG_FORMAT = (
-        "[%(asctime)s] [%(threadName)s:%(thread)d] [%(levelname)s]: "
-        "%(message)s [%(pathname)s <%(lineno)d>]"
+        "[%(asctime)s] [%(levelname)s]: %(message)s\n"
+        "[%(threadName)s:%(thread)d] [%(pathname)s <%(lineno)d>]"
     )
     LOG_LEVEL = "INFO"
 

@@ -129,7 +129,7 @@ class SubProcess:
         )
         asyncio.ensure_future(task_out, loop=asyncio.get_running_loop())
         task_err = asyncio.create_task(
-            self._handle_log_stream(logging.ERROR, process.stderr, self.stdout_logfile)
+            self._handle_log_stream(logging.ERROR, process.stderr, self.stderr_logfile)
         )
         asyncio.ensure_future(task_err, loop=asyncio.get_running_loop())
         return task_out, task_err
@@ -140,13 +140,14 @@ class SubProcess:
         stream: asyncio.streams.StreamReader,
         log_file_path: str,
     ) -> None:
-        log = logging.Logger("lk_flow__{}".format(self.name))
-        log.addHandler(logging.FileHandler(log_file_path, encoding="utf8"))
+        f = open(log_file_path, 'ab')
+        prefix = f"\n[{self.name}] ".encode()
         while not stream.at_eof():
             data = await stream.readline()
-            line = data.decode("ascii").rstrip()
-            logger.log(level, line)
-            log.log(level, line)
+            f.write(data)
+            f.flush()
+            logger.info(prefix + data)
+        f.close()
 
     async def start(self) -> None:
         filename, argv, env = self._prepare_start()
@@ -193,8 +194,7 @@ class SubProcess:
         self.last_stop_datetime = datetime.datetime.now()
         if self.process == process:
             self.pid = None
-            task_out.cancel()
-            task_err.cancel()
+            # log task will stop by stream.at_eof
             from lk_flow.core import EVENT, Context, Event
 
             event_bus = Context.get_instance().event_bus
@@ -214,6 +214,10 @@ class SubProcess:
             self.process.terminate()
             self.last_stop_datetime = datetime.datetime.now()
             self._watcher_task.cancel()
+            if os.getpgid(self.pid) == self.pid:
+                os.killpg(self.pid, 9)  # kill as group
+            else:
+                os.kill(self.pid, 9)  # kill self
             self.pid = None
             self.state = ProcessStatus.stopped
 
